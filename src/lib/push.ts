@@ -4,12 +4,20 @@ import { prisma } from '@/lib/db/prisma';
 const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
 const privateVapidKey = process.env.VAPID_PRIVATE_KEY!;
 
-// Initialize web-push
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:admin@mazivastu.com',
-  publicVapidKey,
-  privateVapidKey
-);
+// Initialize web-push if keys are present (prevents build crashes on Vercel/Railway)
+if (publicVapidKey && privateVapidKey) {
+  try {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:admin@mazivastu.com',
+      publicVapidKey,
+      privateVapidKey
+    );
+  } catch (error) {
+    console.warn('Failed to initialize web-push:', error);
+  }
+} else {
+  console.warn('VAPID keys are missing. Push notifications will not be initialized.');
+}
 
 export async function sendPushNotificationToAllAdmins(payload: { title: string, body: string, url?: string }) {
   try {
