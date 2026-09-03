@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <!-- Dot Pattern -->
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2" fill="#f5c518" opacity="0.3" />
+    </pattern>
+
+    <!-- Diagonal Lines Pattern -->
+    <pattern id="lines" width="20" height="20" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="20" stroke="#f5c518" stroke-width="2" opacity="0.15" />
+    </pattern>
+    
+    <!-- Linear Gradient for fading out the bottom -->
+    <linearGradient id="fade" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#050505" stop-opacity="1" />
+      <stop offset="100%" stop-color="#050505" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Top Left Dots -->
+  <rect x="40" y="40" width="160" height="160" fill="url(#dots)" />
+
+  <!-- Top Right Lines Circle -->
+  <circle cx="1350" cy="-20" r="250" fill="url(#lines)" />
+
+  <!-- Clouds -->
+  <g stroke="#f5c518" stroke-width="1.5" fill="none" opacity="0.2">
+    <path d="M 220 180 Q 240 160 260 180 Q 290 170 300 200 L 200 200 Q 190 180 220 180 Z" />
+    <path d="M 1020 150 Q 1040 130 1060 150 Q 1090 140 1100 170 L 1000 170 Q 990 150 1020 150 Z" />
+  </g>
+
+  <!-- City Skyline Line Art (Bottom) -->
+  <g stroke="#f5c518" stroke-width="1.5" fill="none" opacity="0.15">
+    
+    <!-- Left tall buildings -->
+    <polyline points="0,600 0,350 80,350 80,600" />
+    <polyline points="40,350 40,280 120,280 120,600" />
+    <polyline points="120,400 180,400 180,320 250,320 250,600" />
+    
+    <!-- Windows for left buildings -->
+    <rect x="20" y="380" width="10" height="15" />
+    <rect x="50" y="380" width="10" height="15" />
+    <rect x="20" y="420" width="10" height="15" />
+    <rect x="50" y="420" width="10" height="15" />
+    
+    <rect x="60" y="310" width="15" height="15" />
+    <rect x="90" y="310" width="15" height="15" />
+    <rect x="60" y="350" width="15" height="15" />
+    <rect x="90" y="350" width="15" height="15" />
+    <rect x="60" y="390" width="15" height="15" />
+    <rect x="90" y="390" width="15" height="15" />
+    <rect x="60" y="430" width="15" height="15" />
+    <rect x="90" y="430" width="15" height="15" />
+    <rect x="60" y="470" width="15" height="15" />
+    <rect x="90" y="470" width="15" height="15" />
+
+    <!-- Left trees -->
+    <circle cx="280" cy="520" r="40" />
+    <circle cx="320" cy="540" r="30" />
+    <circle cx="250" cy="550" r="25" />
+    
+    <!-- Center House -->
+    <polyline points="400,600 400,480 600,430 800,480 800,600" />
+    <polyline points="380,490 600,410 820,490" />
+    <polyline points="500,455 500,600" />
+    <polyline points="700,455 700,600" />
+    <!-- House Details -->
+    <rect x="550" y="520" width="100" height="80" />
+    <line x1="600" y1="520" x2="600" y2="600" />
+    <rect x="420" y="520" width="60" height="40" />
+    <rect x="720" y="520" width="60" height="40" />
+    
+    <!-- Right trees -->
+    <circle cx="900" cy="530" r="45" />
+    <circle cx="850" cy="560" r="30" />
+    <circle cx="950" cy="550" r="35" />
+    <circle cx="1020" cy="570" r="25" />
+
+    <!-- Right tall buildings -->
+    <polyline points="1100,600 1100,380 1180,380 1180,600" />
+    <polyline points="1180,420 1260,420 1260,250 1380,250 1380,600" />
+    <polyline points="1380,300 1440,300 1440,600" />
+    
+    <!-- Windows for right buildings -->
+    <line x1="1120" y1="410" x2="1160" y2="410" />
+    <line x1="1120" y1="440" x2="1160" y2="440" />
+    <line x1="1120" y1="470" x2="1160" y2="470" />
+    <line x1="1120" y1="500" x2="1160" y2="500" />
+
+    <path d="M 1200 280 L 1230 320" />
+    <path d="M 1200 320 L 1230 360" />
+    <path d="M 1200 360 L 1230 400" />
+    <path d="M 1200 400 L 1230 440" />
+    <path d="M 1200 440 L 1230 480" />
+    <path d="M 1200 480 L 1230 520" />
+    <path d="M 1200 520 L 1230 560" />
+
+  </g>
+
+  <!-- Bottom fade gradient to blend with background seamlessly -->
+  <rect x="0" y="500" width="1440" height="100" fill="url(#fade)" />
+</svg>

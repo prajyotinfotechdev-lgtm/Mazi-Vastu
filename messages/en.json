@@ -1,0 +1,82 @@
+{
+  "common": {
+    "appName": "MaziVastu",
+    "home": "Home",
+    "properties": "Properties",
+    "services": "Services",
+    "contact": "Contact",
+    "search": "Search",
+    "filter": "Filter",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "noResults": "No results found",
+    "showMore": "Show More",
+    "showLess": "Show Less"
+  },
+  "property": {
+    "title": "Properties",
+    "listTitle": "Browse Properties",
+    "detailTitle": "Property Details",
+    "price": "Price",
+    "size": "Size",
+    "location": "Location",
+    "type": "Property Type",
+    "status": "Status",
+    "publishedOn": "Published on",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "parking": "Parking",
+    "facing": "Facing",
+    "furnishing": "Furnishing",
+    "ageOfProperty": "Age of Property",
+    "registerToViewDetails": "Register to view full details",
+    "noProperties": "No properties available at the moment."
+  },
+  "registration": {
+    "title": "Register",
+    "subtitle": "Register to view complete property details",
+    "name": "Full Name",
+    "mobile": "Mobile Number",
+    "email": "Email (optional)",
+    "language": "Preferred Language",
+    "submit": "Register Now",
+    "success": "Registration successful! You can now view complete property details.",
+    "errors": {
+      "invalidMobile": "Please enter a valid 10-digit mobile number",
+      "invalidEmail": "Please enter a valid email address",
+      "nameRequired": "Name is required"
+    }
+  },
+  "consultation": {
+    "title": "Property Consultation",
+    "subtitle": "Tell us what you're looking for",
+    "wantedPropertyType": "What type of property are you looking for?",
+    "wantedPropertySize": "Desired size",
+    "wantedPropertyLocation": "Preferred location",
+    "budget": "Budget range",
+    "submit": "Submit Request",
+    "success": "Your consultation request has been submitted. We will contact you soon."
+  },
+  "services": {
+    "title": "Allied Services",
+    "contactViaWhatsApp": "Contact via WhatsApp",
+    "noServices": "No services available."
+  },
+  "advertisements": {
+    "sponsored": "Sponsored",
+    "ad": "Advertisement"
+  },
+  "push": {
+    "enableNotifications": "Enable Notifications",
+    "disableNotifications": "Disable Notifications",
+    "notificationEnabled": "Notifications enabled",
+    "notificationDisabled": "Notifications disabled"
+  }
+}

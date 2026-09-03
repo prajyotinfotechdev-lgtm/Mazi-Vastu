@@ -1,0 +1,505 @@
+// ─── MaziVastu Database Schema ─────────────────────────────────────────────
+// Version: 1.0.0 | PostgreSQL | Prisma ORM
+// Business Reference Document: Property Listing Website v1.0 (Aug 21, 2026)
+// ──────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Admin {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  name        String
+  password    String    // bcrypt hashed
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  auditLogs AuditLog[]
+  pushSubscriptions PushSubscription[]
+
+  @@map("admins")
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROPERTY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum PropertyStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SOLD
+  RENTED
+  INACTIVE
+}
+
+enum SizeUnit {
+  SQFT
+  SQMT
+  ACRE
+  HECTARE
+  GUNTHA
+}
+
+enum PriceType {
+  FIXED
+  NEGOTIABLE
+  ON_REQUEST
+  PER_SQFT
+  PER_MONTH
+}
+
+model Property {
+  id                  String         @id @default(cuid())
+  slug                String         @unique
+  title               String
+  description         String?        @db.Text
+  propertyTypeId      String
+  status              PropertyStatus @default(DRAFT)
+  approximateLocation String?        // Public-facing location
+  gatedLocation       String?        // Visible only to registered visitors
+  size                Float?
+  sizeUnit            SizeUnit?
+  price               Float?
+  priceType           PriceType?     @default(FIXED)
+  metadata            Json?          @default("{}") @db.JsonB // Dynamic field values
+  seoTitle            String?
+  seoDescription      String?        @db.Text
+  publishedAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  deletedAt           DateTime?      // Soft delete
+
+  propertyType PropertyType     @relation(fields: [propertyTypeId], references: [id])
+  media        PropertyMedia[]
+  slugHistory  PropertySlugHistory[]
+
+  @@index([status])
+  @@index([propertyTypeId])
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([deletedAt])
+  @@index([status, deletedAt, publishedAt])
+  @@map("properties")
+}
+
+model PropertySlugHistory {
+  id         String   @id @default(cuid())
+  propertyId String
+  oldSlug    String   @unique
+  createdAt  DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([oldSlug])
+  @@map("property_slug_history")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROPERTY TYPES (Hierarchical, Admin-Configurable)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model PropertyType {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  parentId    String?
+  description String?   @db.Text
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete
+
+  parent   PropertyType?  @relation("PropertyTypeHierarchy", fields: [parentId], references: [id])
+  children PropertyType[] @relation("PropertyTypeHierarchy")
+
+  properties Property[]
+
+  @@index([parentId])
+  @@index([isActive, sortOrder])
+  @@index([slug])
+  @@map("property_types")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DYNAMIC PROPERTY FIELDS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum FieldDataType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  SELECT
+  MULTI_SELECT
+  DATE
+}
+
+model PropertyFieldDefinition {
+  id              String        @id @default(cuid())
+  key             String        @unique // Machine-readable key (e.g., "facing")
+  label           String                // Display label (e.g., "Facing")
+  description     String?       @db.Text
+  dataType        FieldDataType
+  options         Json?         @db.JsonB // For SELECT/MULTI_SELECT: ["East", "West", "North", "South"]
+  validationRules Json?         @db.JsonB // { min: 0, max: 100, pattern: "..." }
+  isRequired      Boolean       @default(false)
+  isPublic        Boolean       @default(true)  // Visible to anonymous users
+  isGated         Boolean       @default(false) // Visible only to registered visitors
+  isFilterable    Boolean       @default(false)
+  isSearchable    Boolean       @default(false)
+  isActive        Boolean       @default(true)
+  sortOrder       Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?     // Soft delete
+
+  @@index([isActive, sortOrder])
+  @@index([key])
+  @@map("property_field_definitions")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROPERTY MEDIA (Cloudinary references)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model PropertyMedia {
+  id          String    @id @default(cuid())
+  propertyId  String
+  publicId    String    // Cloudinary public_id
+  publicUrl   String    // Cloudinary secure_url / CDN URL
+  mediaType   MediaType
+  mimeType    String
+  fileSize    Int?      // bytes
+  width       Int?
+  height      Int?
+  duration    Float?    // seconds, for video
+  sortOrder   Int       @default(0)
+  altText     String?
+  createdAt   DateTime  @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, sortOrder])
+  @@map("property_media")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VISITORS (Lightweight registration)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Visitor {
+  id                 String   @id @default(cuid())
+  name               String
+  mobile             String
+  email              String?
+  language           String   @default("en") // "en" or "mr"
+  registrationSource String   @default("WEB") // WEB, PWA, etc.
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  lastSeenAt         DateTime @default(now())
+
+  leads             Lead[]
+  pushSubscriptions PushSubscription[]
+
+  @@unique([mobile])
+  @@index([email])
+  @@map("visitors")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEADS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum LeadSource {
+  REGISTRATION
+  CONSULTATION
+  SERVICE_CONTACT
+  PROPERTY_INTEREST
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  CLOSED
+  REJECTED
+}
+
+model Lead {
+  id         String     @id @default(cuid())
+  visitorId  String?
+  name       String
+  phone      String
+  email      String?
+  source     LeadSource
+  status     LeadStatus @default(NEW)
+  propertyId String?    // For PROPERTY_INTEREST
+  serviceId  String?    // For SERVICE_CONTACT
+  metadata   Json?      @default("{}") @db.JsonB
+  notes      String?    @db.Text // Admin notes
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  visitor Visitor? @relation(fields: [visitorId], references: [id])
+
+  @@index([source])
+  @@index([status])
+  @@index([createdAt])
+  @@index([visitorId])
+  @@map("leads")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONSULTATION REQUESTS (Property Hunting)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum ConsultationStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  CLOSED
+}
+
+model ConsultationRequest {
+  id                     String             @id @default(cuid())
+  name                   String
+  phone                  String
+  email                  String?
+  wantedPropertyType     String?
+  wantedPropertySize     String?
+  wantedPropertyLocation String?
+  budget                 String?
+  status                 ConsultationStatus @default(NEW)
+  notes                  String?            @db.Text
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("consultation_requests")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ALLIED SERVICES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model AlliedService {
+  id                      String    @id @default(cuid())
+  name                    String
+  slug                    String    @unique
+  description             String?   @db.Text
+  iconUrl                 String?   // Cloudinary URL for service icon
+  price                   Float?
+  priceUnit               String?
+  whatsappNumber          String    // Full international format
+  whatsappMessageTemplate String    @default("Hello, I am interested in the {serviceName} service from MaziVastu.")
+  providerContacts        Json?     @default("[]") // Array of { name: string, number: string }
+  isActive                Boolean   @default(true)
+  sortOrder               Int       @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  deletedAt               DateTime? // Soft delete
+
+  @@index([isActive, sortOrder])
+  @@index([slug])
+  @@map("allied_services")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADVERTISEMENTS (Completely Independent from Property)
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// CRITICAL: This model has NO foreign key to Property.
+// Advertisement is an independent business module per BRD v1.0.
+// An advertisement can exist without any property.
+// Changes to advertisements never affect properties and vice versa.
+//
+
+enum AdvertisementStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+model Advertisement {
+  id                 String              @id @default(cuid())
+  title              String
+  slug               String              @unique
+  description        String?             @db.Text
+  projectInformation String?             @db.Text
+  contactName        String?
+  contactPhone       String?
+  contactEmail       String?
+  status             AdvertisementStatus @default(DRAFT)
+  startDate          DateTime?
+  endDate            DateTime?
+  sortOrder          Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?           // Soft delete
+
+  media      AdvertisementMedia[]
+  placements AdvertisementPlacement[]
+
+  // NOTE: No relation to Property — this is intentional per BRD
+
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([slug])
+  @@index([deletedAt])
+  @@index([status, deletedAt, startDate, endDate])
+  @@map("advertisements")
+}
+
+model AdvertisementMedia {
+  id              String    @id @default(cuid())
+  advertisementId String
+  publicId        String    // Cloudinary public_id
+  publicUrl       String    // Cloudinary secure_url
+  mediaType       MediaType
+  mimeType        String
+  fileSize        Int?
+  width           Int?
+  height          Int?
+  duration        Float?
+  sortOrder       Int       @default(0)
+  altText         String?
+  createdAt       DateTime  @default(now())
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+
+  @@index([advertisementId, sortOrder])
+  @@map("advertisement_media")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADVERTISEMENT PLACEMENT ZONES (Many-to-Many)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum PlacementZone {
+  HOMEPAGE_BANNER
+  CATEGORY_PAGE_SLOT
+  SERVICE_PAGE_SLOT
+  FOOTER_STRIP
+}
+
+model AdvertisementPlacement {
+  id              String        @id @default(cuid())
+  advertisementId String
+  placementZone   PlacementZone
+  pageContext     String?       // Optional: specific page path
+  categoryContext String?       // Optional: specific category slug
+  sortOrder       Int           @default(0)
+  createdAt       DateTime      @default(now())
+
+  advertisement Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+
+  @@unique([advertisementId, placementZone, pageContext, categoryContext])
+  @@index([placementZone])
+  @@index([advertisementId])
+  @@map("advertisement_placements")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WEB PUSH SUBSCRIPTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model PushSubscription {
+  id            String    @id @default(cuid())
+  visitorId     String?
+  adminId       String?
+  endpoint      String    @unique
+  p256dh        String
+  auth          String
+  userAgent     String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastSuccessAt DateTime?
+  lastFailureAt DateTime?
+
+  visitor Visitor? @relation(fields: [visitorId], references: [id])
+  admin   Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([visitorId])
+  @@index([adminId])
+  @@index([isActive])
+  @@map("push_subscriptions")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTIFICATION OUTBOX (PostgreSQL-backed job queue)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+model NotificationOutbox {
+  id             String             @id @default(cuid())
+  type           String             // "NEW_PROPERTY", "CUSTOM", etc.
+  payload        Json               @db.JsonB
+  status         NotificationStatus @default(PENDING)
+  attempts       Int                @default(0)
+  maxAttempts    Int                @default(3)
+  lastAttemptAt  DateTime?
+  processedAt    DateTime?
+  errorMessage   String?
+  idempotencyKey String?            @unique // Prevent duplicate jobs
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([status, createdAt])
+  @@index([idempotencyKey])
+  @@map("notification_outbox")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String?
+  action     String   // e.g., "PROPERTY_CREATED", "ADVERTISEMENT_ACTIVATED"
+  entityType String   // e.g., "Property", "Advertisement"
+  entityId   String?
+  metadata   Json?    @db.JsonB // Change details
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  admin Admin? @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

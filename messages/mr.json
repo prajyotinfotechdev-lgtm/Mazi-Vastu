@@ -1,0 +1,82 @@
+{
+  "common": {
+    "appName": "माझीवास्तू",
+    "home": "मुख्यपृष्ठ",
+    "properties": "मालमत्ता",
+    "services": "सेवा",
+    "contact": "संपर्क",
+    "search": "शोधा",
+    "filter": "फिल्टर",
+    "submit": "सबमिट करा",
+    "cancel": "रद्द करा",
+    "save": "जतन करा",
+    "delete": "हटवा",
+    "edit": "संपादित करा",
+    "view": "पहा",
+    "loading": "लोड होत आहे...",
+    "error": "एक त्रुटी आली",
+    "success": "यशस्वी",
+    "noResults": "कोणतेही परिणाम सापडले नाहीत",
+    "showMore": "अधिक पहा",
+    "showLess": "कमी पहा"
+  },
+  "property": {
+    "title": "मालमत्ता",
+    "listTitle": "मालमत्ता शोधा",
+    "detailTitle": "मालमत्ता तपशील",
+    "price": "किंमत",
+    "size": "आकार",
+    "location": "स्थान",
+    "type": "मालमत्ता प्रकार",
+    "status": "स्थिती",
+    "publishedOn": "प्रकाशित दिनांक",
+    "bedrooms": "बेडरूम",
+    "bathrooms": "बाथरूम",
+    "parking": "पार्किंग",
+    "facing": "दिशा",
+    "furnishing": "सज्जा",
+    "ageOfProperty": "मालमत्तेचे वय",
+    "registerToViewDetails": "संपूर्ण तपशील पाहण्यासाठी नोंदणी करा",
+    "noProperties": "सध्या कोणतीही मालमत्ता उपलब्ध नाही."
+  },
+  "registration": {
+    "title": "नोंदणी",
+    "subtitle": "संपूर्ण मालमत्ता तपशील पाहण्यासाठी नोंदणी करा",
+    "name": "पूर्ण नाव",
+    "mobile": "मोबाइल क्रमांक",
+    "email": "ईमेल (ऐच्छिक)",
+    "language": "पसंतीची भाषा",
+    "submit": "आता नोंदणी करा",
+    "success": "नोंदणी यशस्वी! आता तुम्ही संपूर्ण मालमत्ता तपशील पाहू शकता.",
+    "errors": {
+      "invalidMobile": "कृपया वैध 10-अंकी मोबाइल क्रमांक प्रविष्ट करा",
+      "invalidEmail": "कृपया वैध ईमेल पत्ता प्रविष्ट करा",
+      "nameRequired": "नाव आवश्यक आहे"
+    }
+  },
+  "consultation": {
+    "title": "मालमत्ता सल्ला",
+    "subtitle": "तुम्ही काय शोधत आहात ते सांगा",
+    "wantedPropertyType": "कोणत्या प्रकारची मालमत्ता हवी आहे?",
+    "wantedPropertySize": "इच्छित आकार",
+    "wantedPropertyLocation": "पसंतीचे स्थान",
+    "budget": "बजेट श्रेणी",
+    "submit": "विनंती सबमिट करा",
+    "success": "तुमची सल्ला विनंती सबमिट झाली आहे. आम्ही लवकरच तुम्हाला संपर्क करू."
+  },
+  "services": {
+    "title": "संलग्न सेवा",
+    "contactViaWhatsApp": "WhatsApp द्वारे संपर्क करा",
+    "noServices": "कोणत्याही सेवा उपलब्ध नाहीत."
+  },
+  "advertisements": {
+    "sponsored": "प्रायोजित",
+    "ad": "जाहिरात"
+  },
+  "push": {
+    "enableNotifications": "सूचना सुरू करा",
+    "disableNotifications": "सूचना बंद करा",
+    "notificationEnabled": "सूचना सुरू आहेत",
+    "notificationDisabled": "सूचना बंद आहेत"
+  }
+}

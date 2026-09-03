@@ -1,0 +1,50 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+export default function DeleteAdvertisementButton({ id, title }: { id: string; title: string }) {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete the advertisement "${title}"?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/advertisements/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error?.message || 'Failed to delete advertisement');
+      }
+      router.refresh();
+      toast.success('Advertisement deleted');
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDelete}
+      disabled={loading}
+      className="mv-action-btn"
+      style={{
+        background: 'none',
+        border: 'none',
+        color: '#ef4444',
+        cursor: loading ? 'not-allowed' : 'pointer',
+        opacity: loading ? 0.5 : 1
+      }}
+      title={`Delete ${title}`}
+    >
+      <Trash2 size={16} />
+    </button>
+  );
+}

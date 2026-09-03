@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1200" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <!-- Dot Pattern -->
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2" fill="#f5c518" opacity="0.3" />
+    </pattern>
+
+    <!-- Diagonal Lines Pattern -->
+    <pattern id="lines" width="20" height="20" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="20" stroke="#f5c518" stroke-width="2" opacity="0.15" />
+    </pattern>
+    
+    <!-- Linear Gradient for fading out the bottom -->
+    <linearGradient id="fade" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#050505" stop-opacity="1" />
+      <stop offset="100%" stop-color="#050505" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Top Left Dots -->
+  <rect x="20" y="20" width="160" height="160" fill="url(#dots)" />
+
+  <!-- Top Right Lines Circle -->
+  <circle cx="580" cy="-20" r="150" fill="url(#lines)" />
+
+  <!-- Center Middle Clouds -->
+  <g stroke="#f5c518" stroke-width="1.5" fill="none" opacity="0.2">
+    <path d="M 50 400 Q 70 380 90 400 Q 120 390 130 420 L 30 420 Q 20 400 50 400 Z" />
+    <path d="M 450 350 Q 470 330 490 350 Q 520 340 530 370 L 430 370 Q 420 350 450 350 Z" />
+    <path d="M 200 650 Q 220 630 240 650 Q 270 640 280 670 L 180 670 Q 170 650 200 650 Z" />
+  </g>
+
+  <!-- City Skyline Line Art (Bottom) - Condensed for mobile -->
+  <g stroke="#f5c518" stroke-width="1.5" fill="none" opacity="0.15">
+    
+    <!-- Left tall buildings -->
+    <polyline points="0,1200 0,950 60,950 60,1200" />
+    <polyline points="20,950 20,880 100,880 100,1200" />
+    <polyline points="100,1000 160,1000 160,920 220,920 220,1200" />
+    
+    <!-- Left trees -->
+    <circle cx="250" cy="1120" r="40" />
+    <circle cx="290" cy="1140" r="30" />
+    <circle cx="220" cy="1150" r="25" />
+    
+    <!-- Center House -->
+    <polyline points="350,1200 350,1080 450,1030 550,1080 550,1200" />
+    <polyline points="330,1090 450,1010 570,1090" />
+    <polyline points="400,1055 400,1200" />
+    <polyline points="500,1055 500,1200" />
+    <!-- House Details -->
+    <rect x="425" y="1120" width="50" height="80" />
+    <line x1="450" y1="1120" x2="450" y2="1200" />
+    <rect x="360" y="1120" width="30" height="40" />
+    <rect x="510" y="1120" width="30" height="40" />
+    
+    <!-- Right tall buildings -->
+    <polyline points="580,1200 580,980 640,980 640,1200" />
+    
+  </g>
+
+  <!-- Bottom fade gradient to blend with background seamlessly -->
+  <rect x="0" y="1100" width="600" height="100" fill="url(#fade)" />
+</svg>

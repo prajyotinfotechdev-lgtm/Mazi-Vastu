@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <defs>
+    <!-- Cross pattern for intersections -->
+    <g id="cross">
+      <line x1="-3" y1="0" x2="3" y2="0" stroke="#f5c518" stroke-width="1.5" opacity="0.3" />
+      <line x1="0" y1="-3" x2="0" y2="3" stroke="#f5c518" stroke-width="1.5" opacity="0.3" />
+    </g>
+  </defs>
+
+  <!-- Faint Grid lines -->
+  <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.02" />
+  <path d="M 50 0 L 50 100" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.01" />
+  <path d="M 0 50 L 100 50" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.01" />
+
+  <!-- Intersection Markers -->
+  <use href="#cross" x="0" y="0" />
+  <use href="#cross" x="100" y="0" />
+  <use href="#cross" x="0" y="100" />
+  <use href="#cross" x="100" y="100" />
+
+  <!-- Center Dot -->
+  <circle cx="50" cy="50" r="1.5" fill="#f5c518" opacity="0.15" />
+</svg>

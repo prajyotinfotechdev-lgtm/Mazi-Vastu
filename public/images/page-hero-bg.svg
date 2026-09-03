@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMin slice">
+  <defs>
+    <!-- Linear Gradient for fading out the bottom -->
+    <linearGradient id="fade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="50%" stop-color="#0a0a0a" stop-opacity="0" />
+      <stop offset="100%" stop-color="#0a0a0a" stop-opacity="1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Solid background base to ensure it blends if needed -->
+  <rect width="1440" height="400" fill="#0a0a0a" opacity="0" />
+
+  <!-- City Skyline Line Art (Top aligned for inner pages) -->
+  <g stroke="#f5c518" stroke-width="1.5" fill="none" opacity="0.1">
+    
+    <!-- Left tall buildings -->
+    <polyline points="0,300 0,100 80,100 80,300" />
+    <polyline points="40,100 40,50 120,50 120,300" />
+    <polyline points="120,150 180,150 180,80 250,80 250,300" />
+    
+    <!-- Windows for left buildings -->
+    <rect x="20" y="130" width="10" height="15" />
+    <rect x="50" y="130" width="10" height="15" />
+    <rect x="20" y="170" width="10" height="15" />
+    <rect x="50" y="170" width="10" height="15" />
+    
+    <rect x="60" y="80" width="15" height="15" />
+    <rect x="90" y="80" width="15" height="15" />
+    <rect x="60" y="120" width="15" height="15" />
+    <rect x="90" y="120" width="15" height="15" />
+    <rect x="60" y="160" width="15" height="15" />
+    <rect x="90" y="160" width="15" height="15" />
+
+    <!-- Left trees -->
+    <circle cx="280" cy="270" r="40" />
+    <circle cx="320" cy="290" r="30" />
+    <circle cx="250" cy="300" r="25" />
+    
+    <!-- Center House -->
+    <polyline points="400,350 400,230 600,180 800,230 800,350" />
+    <polyline points="380,240 600,160 820,240" />
+    <polyline points="500,205 500,350" />
+    <polyline points="700,205 700,350" />
+    
+    <!-- House Details -->
+    <rect x="550" y="270" width="100" height="80" />
+    <line x1="600" y1="270" x2="600" y2="350" />
+    <rect x="420" y="270" width="60" height="40" />
+    <rect x="720" y="270" width="60" height="40" />
+    
+    <!-- Right trees -->
+    <circle cx="900" cy="280" r="45" />
+    <circle cx="850" cy="310" r="30" />
+    <circle cx="950" cy="300" r="35" />
+
+    <!-- Right tall buildings -->
+    <polyline points="1100,350 1100,130 1180,130 1180,350" />
+    <polyline points="1180,170 1260,170 1260,50 1380,50 1380,350" />
+    <polyline points="1380,100 1440,100 1440,350" />
+    
+    <!-- Windows for right buildings -->
+    <line x1="1120" y1="160" x2="1160" y2="160" />
+    <line x1="1120" y1="190" x2="1160" y2="190" />
+    <line x1="1120" y1="220" x2="1160" y2="220" />
+    
+    <path d="M 1200 80 L 1230 120" />
+    <path d="M 1200 120 L 1230 160" />
+    <path d="M 1200 160 L 1230 200" />
+    <path d="M 1200 200 L 1230 240" />
+
+  </g>
+
+  <!-- Bottom fade gradient to blend with the rest of the page -->
+  <rect x="0" y="200" width="1440" height="200" fill="url(#fade)" />
+</svg>
