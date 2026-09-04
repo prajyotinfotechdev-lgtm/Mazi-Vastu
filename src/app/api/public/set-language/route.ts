@@ -11,7 +11,12 @@ export async function POST(request: NextRequest) {
 
   const validLang = lang === 'mr' ? 'mr' : 'en';
 
-  const response = NextResponse.redirect(new URL(redirectTo, request.url));
+  // Safely construct the base URL to handle production proxies (like Railway)
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const protocol = request.headers.get('x-forwarded-proto') || 'http';
+  const baseUrl = `${protocol}://${host}`;
+
+  const response = NextResponse.redirect(new URL(redirectTo, baseUrl));
   response.cookies.set('lang', validLang, {
     path: '/',
     maxAge: 60 * 60 * 24 * 365, // 1 year
