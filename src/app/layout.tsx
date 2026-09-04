@@ -156,6 +156,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 import { getLanguage } from '@/lib/i18n/get-language';
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: {
