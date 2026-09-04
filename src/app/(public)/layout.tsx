@@ -5,6 +5,8 @@ import AdBanner from '@/components/public/AdBanner';
 import VisitorPushOptIn from '@/components/public/VisitorPushOptIn';
 import { prisma } from '@/lib/db/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicLayout({
   children,
 }: {

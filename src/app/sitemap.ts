@@ -4,6 +4,8 @@ import { LATUR_CITIES } from '@/lib/seo/latur-cities';
 
 const BASE_URL = 'https://mazivastu.com';
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

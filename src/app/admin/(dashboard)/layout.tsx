@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth/middleware';
 import AdminLayoutShell from '@/components/admin/AdminLayoutShell';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboardLayout({
   children,
 }: {

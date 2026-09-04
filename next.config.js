@@ -8,6 +8,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Use standalone output for Railway / Docker deployments
+  output: 'standalone',
+
   // Enable server actions for form submissions
   experimental: {
     serverActions: {

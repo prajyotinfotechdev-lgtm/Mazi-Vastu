@@ -31,10 +31,16 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+const noopLoader: LoaderContextType = {
+  showLoader: () => {},
+  hideLoader: () => {},
+};
+
 export function useLoader() {
   const context = useContext(LoaderContext);
+  // Return a no-op during SSR / build-time when context is not available
   if (context === undefined) {
-    throw new Error('useLoader must be used within a LoaderProvider');
+    return noopLoader;
   }
   return context;
 }
