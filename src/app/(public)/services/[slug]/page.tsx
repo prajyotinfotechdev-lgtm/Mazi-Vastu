@@ -24,8 +24,8 @@ export default async function ServiceDetailsPage({
 
   // Fetch the service page advertisement
   const serviceAd = await prisma.advertisement.findFirst({
-    where: { 
-      status: 'ACTIVE', 
+    where: {
+      status: 'ACTIVE',
       deletedAt: null,
       placements: {
         some: { placementZone: 'SERVICE_PAGE_SLOT' }
@@ -43,7 +43,7 @@ export default async function ServiceDetailsPage({
   return (
     <div style={{ minHeight: '100vh', background: 'var(--mv-bg)', padding: 'var(--mv-space-4xl) 0' }}>
       <div className="mv-container">
-        
+
         <Link href="/services" className="mv-btn mv-btn-ghost" style={{ padding: '0.5rem 0', display: 'inline-flex', marginBottom: 'var(--mv-space-2xl)' }}>
           <ArrowLeft size={18} /> {t('services.backToAll', lang)}
         </Link>
@@ -55,7 +55,7 @@ export default async function ServiceDetailsPage({
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'var(--mv-space-3xl)', '@media (min-width: 1024px)': { gridTemplateColumns: '1fr 400px' } } as React.CSSProperties}>
-          
+
           {/* Main Content */}
           <div className="mv-card" style={{ padding: 'var(--mv-space-3xl)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--mv-space-xl)', marginBottom: 'var(--mv-space-2xl)' }}>
@@ -95,7 +95,7 @@ export default async function ServiceDetailsPage({
             </div>
 
             <div style={{ marginTop: 'var(--mv-space-3xl)', paddingTop: 'var(--mv-space-3xl)', borderTop: '1px solid var(--mv-border)', display: 'flex', justifyContent: 'center' }}>
-              <a 
+              <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"

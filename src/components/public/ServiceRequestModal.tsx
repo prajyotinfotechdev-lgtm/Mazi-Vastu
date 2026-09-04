@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, MessageCircle, Lock, Unlock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { t } from '@/lib/i18n/translate';
 import type { Language } from '@/lib/i18n/get-language';
@@ -24,8 +25,10 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hasAccess, setHasAccess] = useState(isRegistered);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (!isRegistered && typeof window !== 'undefined') {
       const hasProvided = localStorage.getItem('mv_service_contact_provided');
       if (hasProvided === 'true') {
@@ -51,7 +54,7 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
       }
 
       const data = await res.json();
-      
+
       if (data.success) {
         setHasAccess(true);
         if (typeof window !== 'undefined') {
@@ -66,7 +69,9 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div className="mv-modal-overlay">
       <div className="mv-modal-content">
         <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--mv-text-muted)' }}>
@@ -77,7 +82,7 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
           {hasAccess ? t('form.service.getService', lang) : 'Unlock Provider Details'}
         </h2>
         <p style={{ color: 'var(--mv-text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-          {hasAccess 
+          {hasAccess
             ? <>{t('form.service.requesting1', lang)} <strong style={{ color: 'var(--mv-accent)' }}>{service.name}</strong> {t('form.service.requesting2', lang)}</>
             : <>Please enter your details once to unlock contact numbers for <strong style={{ color: 'var(--mv-accent)' }}>{service.name}</strong> and all other services.</>
           }
@@ -103,11 +108,11 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
             {(() => {
               let contacts = [];
               if (typeof service.providerContacts === 'string') {
-                try { contacts = JSON.parse(service.providerContacts); } catch (e) {}
+                try { contacts = JSON.parse(service.providerContacts); } catch (e) { }
               } else if (Array.isArray(service.providerContacts)) {
                 contacts = service.providerContacts;
               }
-              
+
               return contacts.length > 0 ? (
                 <div style={{
                   background: 'linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0.8) 100%)',
@@ -122,21 +127,21 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {contacts.map((contact: any, index: number) => (
-                      <div key={index} style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center', 
-                        paddingBottom: index < contacts.length - 1 ? '1rem' : '0', 
-                        borderBottom: index < contacts.length - 1 ? '1px dashed rgba(255,255,255,0.1)' : 'none' 
+                      <div key={index} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingBottom: index < contacts.length - 1 ? '1rem' : '0',
+                        borderBottom: index < contacts.length - 1 ? '1px dashed rgba(255,255,255,0.1)' : 'none'
                       }}>
                         <div style={{ fontSize: '1.0625rem', fontWeight: 600, color: 'var(--mv-text)' }}>
                           {contact.name}
                         </div>
-                        <a href={`tel:${contact.number}`} style={{ 
-                          fontSize: '0.95rem', 
-                          color: '#f5c518', 
-                          display: 'flex', 
-                          alignItems: 'center', 
+                        <a href={`tel:${contact.number}`} style={{
+                          fontSize: '0.95rem',
+                          color: '#f5c518',
+                          display: 'flex',
+                          alignItems: 'center',
                           gap: '0.4rem',
                           textDecoration: 'none',
                           background: 'rgba(245,197,24,0.1)',
@@ -145,8 +150,8 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
                           fontWeight: 600,
                           transition: 'all 0.2s'
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(245,197,24,0.2)'}
-                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(245,197,24,0.1)'}>
+                          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(245,197,24,0.2)'}
+                          onMouseOut={(e) => e.currentTarget.style.background = 'rgba(245,197,24,0.1)'}>
                           <MessageCircle size={15} /> {contact.number}
                         </a>
                       </div>
@@ -244,6 +249,7 @@ export default function ServiceRequestModal({ service, isRegistered, onClose, la
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
