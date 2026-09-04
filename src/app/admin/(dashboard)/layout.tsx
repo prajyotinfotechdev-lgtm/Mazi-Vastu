@@ -21,7 +21,14 @@ export default async function AdminDashboardLayout({
   async function logoutAction() {
     'use server';
     const { signOut } = await import('@/lib/auth/config');
-    await signOut();
+    const { headers } = await import('next/headers');
+    
+    const h = headers();
+    const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
+    const protocol = h.get('x-forwarded-proto') || 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
+    await signOut({ redirectTo: `${baseUrl}/admin/login` });
   }
 
   return (
