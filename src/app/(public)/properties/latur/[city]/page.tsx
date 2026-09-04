@@ -12,9 +12,9 @@ interface PageProps {
   params: { city: string };
 }
 
-export async function generateStaticParams() {
-  return LATUR_CITIES.map((city) => ({ city: city.slug }));
-}
+// export async function generateStaticParams() {
+//   return LATUR_CITIES.map((city) => ({ city: city.slug }));
+// }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const city = LATUR_CITIES.find((c) => c.slug === params.city);

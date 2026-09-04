@@ -15,8 +15,8 @@ import { LATUR_CITIES } from '@/lib/seo/latur-cities';
 
 import CategoryGrid from '@/components/public/CategoryGrid';
 
-// ISR: revalidate every 5 minutes — homepage is served from CDN edge cache
-export const revalidate = 300;
+// ISR disabled since cookies() are used in the RootLayout
+// export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'MaziVastu | Property in Latur | Buy Sell Rent घर प्लॉट फ्लॅट',

@@ -11,8 +11,8 @@ import CustomCategorySelect from '@/components/public/CustomCategorySelect';
 import AdvancedSearchBar from '@/components/public/AdvancedSearchBar';
 import { t } from '@/lib/i18n/translate';
 
-// ISR: revalidate every 2 minutes for real-time-ish listings
-export const revalidate = 120;
+// ISR disabled since cookies() are used in the RootLayout
+// export const revalidate = 120;
 
 const getCategoryIcon = (name: string, iconSize: number = 28) => {
   const lower = name.toLowerCase();

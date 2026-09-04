@@ -10,8 +10,8 @@ import { getLanguage } from '@/lib/i18n/get-language';
 import { t } from '@/lib/i18n/translate';
 import { cache } from 'react';
 
-// ISR: cache page for 5 minutes, then revalidate in the background
-export const revalidate = 300;
+// ISR disabled since cookies() are used in the RootLayout
+// export const revalidate = 300;
 
 // Deduplicated DB fetch - called once per request even if invoked from
 // both generateMetadata and the page component (React request-level cache)
