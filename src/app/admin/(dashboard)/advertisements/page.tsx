@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import Link from 'next/link';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Megaphone } from 'lucide-react';
 import DeleteAdvertisementButton from '@/components/admin/DeleteAdvertisementButton';
 import Pagination from '@/components/admin/Pagination';
 import AdvertisementsFilter from '@/components/admin/AdvertisementsFilter';
