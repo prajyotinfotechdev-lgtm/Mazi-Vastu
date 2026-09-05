@@ -21,14 +21,13 @@ export default async function AdminDashboardLayout({
   async function logoutAction() {
     'use server';
     const { signOut } = await import('@/lib/auth/config');
-    const { headers } = await import('next/headers');
+    const { redirect } = await import('next/navigation');
     
-    const h = headers();
-    const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
-    const protocol = h.get('x-forwarded-proto') || 'http';
-    const baseUrl = `${protocol}://${host}`;
+    // Sign out without Auth.js redirecting
+    await signOut({ redirect: false });
     
-    await signOut({ redirectTo: `${baseUrl}/admin/login` });
+    // Use Next.js native relative redirect (which the browser resolves correctly)
+    redirect('/admin/login');
   }
 
   return (
