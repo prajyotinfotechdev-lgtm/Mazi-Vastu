@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X, Download } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { t } from '@/lib/i18n/translate';
 import logoImg from '@/assets/Logo.jpeg';
+import { useInstallApp } from '@/components/providers/InstallAppProvider';
 
 const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -30,6 +31,7 @@ const YouTubeIcon = () => (
 export default function Navbar({ lang = 'en' }: { lang?: string }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { canInstall, isInstalled, triggerInstall } = useInstallApp();
 
   const navLinks = [
     { href: '/', label: t('nav.home', lang as any) },
@@ -41,6 +43,8 @@ export default function Navbar({ lang = 'en' }: { lang?: string }) {
     if (href === '/') return pathname === '/' || pathname === '/mr';
     return pathname.startsWith(href);
   };
+
+  const showInstallBtn = canInstall && !isInstalled;
 
   return (
     <div style={{
@@ -68,8 +72,36 @@ export default function Navbar({ lang = 'en' }: { lang?: string }) {
             height: '100%',
           }}
         >
-          {/* Left side: Navigation */}
-          <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+          {/* Left side: Install App Button + Navigation */}
+          <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '0.5rem' }}>
+            {/* Install App Button — always visible when app is installable */}
+            {showInstallBtn && (
+              <button
+                onClick={triggerInstall}
+                title="Install MaziVastu App"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  background: 'linear-gradient(135deg, #f5c518 0%, #d4a000 100%)',
+                  color: '#0a0a0a',
+                  border: 'none',
+                  borderRadius: 'var(--mv-radius-full)',
+                  padding: '0.4rem 0.85rem',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  boxShadow: '0 2px 8px rgba(245, 197, 24, 0.3)',
+                  transition: 'all 200ms ease',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                <Download size={14} strokeWidth={2.5} />
+                <span className="hidden-mobile" style={{ marginLeft: '0' }}>Install App</span>
+              </button>
+            )}
+
             <div
               className="hidden-mobile"
               style={{
@@ -101,7 +133,6 @@ export default function Navbar({ lang = 'en' }: { lang?: string }) {
                 </Link>
               ))}
             </div>
-
 
           </div>
 

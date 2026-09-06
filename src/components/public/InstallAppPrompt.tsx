@@ -1,74 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { Download, X } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useInstallApp } from '@/components/providers/InstallAppProvider';
 
 export default function InstallAppPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [show, setShow] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const { canInstall, isInstalled, promptDismissed, triggerInstall, dismissPrompt } = useInstallApp();
 
-  useEffect(() => {
-    // Don't show if already dismissed or already installed as standalone
-    const hasDismissed = localStorage.getItem('mv_install_dismissed');
-    if (hasDismissed) return;
-    if (window.matchMedia('(display-mode: standalone)').matches) return;
-
-    // Detect iOS
-    const iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(iosDevice);
-
-    // Listen for the browser's install readiness event
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      // Show after a delay so it doesn't stack with the push notification prompt
-      setTimeout(() => setShow(true), 5000);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
-    // For iOS: show a manual prompt after a delay
-    if (iosDevice) {
-      const timer = setTimeout(() => setShow(true), 5000);
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('beforeinstallprompt', handler);
-      };
-    }
-
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = useCallback(async () => {
-    if (isIOS) {
-      toast('Tap the Share button ⎋ at the bottom, then tap "Add to Home Screen"', {
-        icon: '📱',
-        duration: 6000,
-      });
-      handleDismiss();
-      return;
-    }
-
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        toast.success('MaziVastu app installed!');
-      }
-      setDeferredPrompt(null);
-      setShow(false);
-      localStorage.setItem('mv_install_dismissed', 'true');
-    }
-  }, [deferredPrompt, isIOS]);
-
-  const handleDismiss = () => {
-    setShow(false);
-    localStorage.setItem('mv_install_dismissed', 'true');
-  };
-
-  if (!show) return null;
+  // Don't show if: already installed, not installable, or user dismissed
+  if (isInstalled || !canInstall || promptDismissed) return null;
 
   return (
     <div style={{
@@ -100,7 +39,7 @@ export default function InstallAppPrompt() {
 
       {/* Close button */}
       <button
-        onClick={handleDismiss}
+        onClick={dismissPrompt}
         style={{
           position: 'absolute', top: '0.5rem', right: '0.5rem',
           background: 'none', border: 'none', cursor: 'pointer',
@@ -137,7 +76,7 @@ export default function InstallAppPrompt() {
         </p>
 
         <button
-          onClick={handleInstall}
+          onClick={() => { triggerInstall(); dismissPrompt(); }}
           style={{
             background: 'linear-gradient(135deg, #f5c518 0%, #d4a000 100%)',
             color: '#0a0a0a',
@@ -149,15 +88,6 @@ export default function InstallAppPrompt() {
             cursor: 'pointer',
             width: '100%',
             boxShadow: '0 4px 12px rgba(245, 197, 24, 0.25)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(245, 197, 24, 0.35)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 197, 24, 0.25)';
           }}
         >
           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>

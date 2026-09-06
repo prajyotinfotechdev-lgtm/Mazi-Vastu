@@ -4,6 +4,7 @@ import MobileBottomNav from '@/components/public/MobileBottomNav';
 import AdBanner from '@/components/public/AdBanner';
 import VisitorPushOptIn from '@/components/public/VisitorPushOptIn';
 import InstallAppPrompt from '@/components/public/InstallAppPrompt';
+import InstallAppProvider from '@/components/providers/InstallAppProvider';
 import { prisma } from '@/lib/db/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -27,23 +28,25 @@ export default async function PublicLayout({
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--mv-bg)' }}>
-      <Navbar lang={lang} />
-      <main style={{ flex: 1 }}>
-        {children}
-      </main>
-      
-      {footerAd && (
-        <div className="mv-container" style={{ marginTop: '3rem', marginBottom: '2rem' }}>
-          <AdBanner ad={footerAd} layout="premium" />
-        </div>
-      )}
-      
-      <Footer />
-      <MobileBottomNav lang={lang} />
-      <div className="mv-bottom-spacer" />
-      <VisitorPushOptIn />
-      <InstallAppPrompt />
-    </div>
+    <InstallAppProvider>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--mv-bg)' }}>
+        <Navbar lang={lang} />
+        <main style={{ flex: 1 }}>
+          {children}
+        </main>
+        
+        {footerAd && (
+          <div className="mv-container" style={{ marginTop: '3rem', marginBottom: '2rem' }}>
+            <AdBanner ad={footerAd} layout="premium" />
+          </div>
+        )}
+        
+        <Footer />
+        <MobileBottomNav lang={lang} />
+        <div className="mv-bottom-spacer" />
+        <VisitorPushOptIn />
+        <InstallAppPrompt />
+      </div>
+    </InstallAppProvider>
   );
 }
