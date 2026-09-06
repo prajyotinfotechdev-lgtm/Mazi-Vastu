@@ -168,6 +168,7 @@ export default function RootLayout({
     <html lang={lang} className={plusJakarta.variable}>
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/images/logo.jpg" />
         <meta name="theme-color" content="#0a0a0a" />
         <meta name="geo.region" content="IN-MH" />
         <meta name="geo.placename" content="Latur, Maharashtra" />

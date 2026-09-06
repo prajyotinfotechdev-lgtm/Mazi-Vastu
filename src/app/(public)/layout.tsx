@@ -3,6 +3,7 @@ import Footer from '@/components/public/Footer';
 import MobileBottomNav from '@/components/public/MobileBottomNav';
 import AdBanner from '@/components/public/AdBanner';
 import VisitorPushOptIn from '@/components/public/VisitorPushOptIn';
+import InstallAppPrompt from '@/components/public/InstallAppPrompt';
 import { prisma } from '@/lib/db/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,7 @@ export default async function PublicLayout({
       <MobileBottomNav lang={lang} />
       <div className="mv-bottom-spacer" />
       <VisitorPushOptIn />
+      <InstallAppPrompt />
     </div>
   );
 }

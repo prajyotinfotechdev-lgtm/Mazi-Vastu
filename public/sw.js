@@ -2,13 +2,15 @@
 // Handles push notifications and basic offline caching for PWA.
 // ──────────────────────────────────────────────────────────────────────────────
 
-const CACHE_NAME = 'majivastu-v1';
-const STATIC_ASSETS = ['/', '/manifest.json'];
+const CACHE_NAME = 'mazivastu-v2';
 
-// Install — cache static assets
+// Install — skip waiting immediately (don't try to cache dynamic pages)
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      // Only cache the manifest and static assets, NOT the dynamic "/" page
+      return cache.addAll(['/manifest.json', '/images/logo.jpg']);
+    })
   );
   self.skipWaiting();
 });
@@ -30,20 +32,30 @@ self.addEventListener('fetch', (event) => {
   // Only cache GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip API calls
+  // Skip API calls and auth routes
   if (event.request.url.includes('/api/')) return;
+  if (event.request.url.includes('/admin/')) return;
 
+  // For navigation requests (HTML pages), always go network-first
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For static assets, cache-first with network fallback
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone and cache successful responses
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
         if (response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      })
-      .catch(() => caches.match(event.request))
+      });
+    })
   );
 });
 
@@ -60,6 +72,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body || 'New update from MaziVastu',
+    icon: '/images/logo.jpg',
+    badge: '/images/logo.jpg',
     data: {
       url: data.url || '/',
     },
