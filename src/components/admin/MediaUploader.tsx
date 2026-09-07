@@ -12,11 +12,12 @@ export interface UploadedMedia {
 }
 
 interface MediaUploaderProps {
+  initialMedia?: UploadedMedia[];
   onMediaUploaded: (media: UploadedMedia[]) => void;
 }
 
-export default function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
-  const [uploads, setUploads] = useState<UploadedMedia[]>([]);
+export default function MediaUploader({ initialMedia = [], onMediaUploaded }: MediaUploaderProps) {
+  const [uploads, setUploads] = useState<UploadedMedia[]>(initialMedia);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');

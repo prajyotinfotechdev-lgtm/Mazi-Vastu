@@ -621,13 +621,10 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
             icon={ImageIcon}
           />
           <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            {isEdit && (
-              <div style={{ fontSize: '0.875rem', color: 'var(--mv-text-secondary)', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Info size={16} style={{ color: 'var(--mv-accent)' }} />
-                <span><strong>Note:</strong> Currently, editing media requires re-uploading the images. They will replace the existing ones.</span>
-              </div>
-            )}
-            <MediaUploader onMediaUploaded={(uploadedMedia) => setMedia(uploadedMedia)} />
+            <MediaUploader 
+              initialMedia={media}
+              onMediaUploaded={(uploadedMedia) => setMedia(uploadedMedia)} 
+            />
           </div>
         </div>
 

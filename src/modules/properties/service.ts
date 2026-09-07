@@ -178,6 +178,7 @@ export class PropertyService {
       where: { id: propertyId },
       data: {
         ...(input.title !== undefined && { title: input.title }),
+        ...(input.status !== undefined && { status: input.status }),
         ...(input.description !== undefined && { description: input.description }),
         ...(input.propertyTypeId !== undefined && { propertyTypeId: input.propertyTypeId }),
         ...(input.approximateLocation !== undefined && { approximateLocation: input.approximateLocation }),
