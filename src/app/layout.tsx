@@ -92,6 +92,11 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   category: 'real estate',
+  icons: {
+    icon: '/images/logo.jpg',
+    shortcut: '/images/logo.jpg',
+    apple: '/images/logo.jpg',
+  },
 };
 
 // JSON-LD structured data
@@ -167,8 +172,6 @@ export default function RootLayout({
   return (
     <html lang={lang} className={plusJakarta.variable}>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/images/logo.jpg" />
         <meta name="theme-color" content="#0a0a0a" />
         <meta name="geo.region" content="IN-MH" />
         <meta name="geo.placename" content="Latur, Maharashtra" />
