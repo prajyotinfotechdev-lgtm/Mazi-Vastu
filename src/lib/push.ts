@@ -48,11 +48,9 @@ export async function sendPushNotificationToAllAdmins(payload: { title: string, 
   }
 }
 
-export async function sendPushNotificationToAllCustomers(payload: { title: string, body: string, url?: string }) {
+export async function sendPushNotificationToAll(payload: { title: string, body: string, url?: string }) {
   try {
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { adminId: null }
-    });
+    const subscriptions = await prisma.pushSubscription.findMany();
 
     if (subscriptions.length === 0) return { success: true, message: 'No subscriptions found' };
 

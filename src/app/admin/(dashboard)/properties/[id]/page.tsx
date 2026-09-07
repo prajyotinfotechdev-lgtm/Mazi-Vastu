@@ -59,7 +59,7 @@ export default async function AdminPropertyDetailsPage({ params }: { params: { i
                 </div>
                 <div style={{ color: 'var(--mv-text)', fontWeight: 600, fontSize: '1.5rem' }}>
                   {property.priceType === 'ON_REQUEST' ? 'Price on Request' : property.price ? `₹${property.price.toLocaleString('en-IN')}` : 'N/A'}
-                  {property.priceType !== 'FIXED' && property.priceType !== 'ON_REQUEST' && (
+                  {property.priceType && property.priceType !== 'FIXED' && property.priceType !== 'ON_REQUEST' && (
                     <span style={{ fontSize: '1rem', color: 'var(--mv-text-secondary)', marginLeft: '0.5rem', fontWeight: 400 }}>({property.priceType.replace('_', ' ')})</span>
                   )}
                 </div>

@@ -27,7 +27,6 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
     priceUnit: initialData?.priceUnit || '',
     whatsappNumber: initialData?.whatsappNumber || '',
     whatsappMessageTemplate: initialData?.whatsappMessageTemplate || 'Hello, I would like to avail the {serviceName} service (Listed Price: {price}). My name is {userName}.',
-    whatsappMessageTemplate: initialData?.whatsappMessageTemplate || 'Hello, I would like to avail the {serviceName} service (Listed Price: {price}). My name is {userName}.',
   });
   
   const [providerContacts, setProviderContacts] = useState<{name: string, number: string}[]>(() => {

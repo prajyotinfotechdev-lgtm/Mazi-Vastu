@@ -138,8 +138,7 @@ export class NotificationService {
       const targetWhere: any = { isActive: true };
       
       if (job.type === 'NEW_PROPERTY') {
-        // Properties are for visitors/customers (no adminId)
-        targetWhere.adminId = null;
+        // Properties are now sent to everyone (both admins and customers)
       } else if (job.type === 'NEW_LEAD') {
         // Leads are for admins
         targetWhere.adminId = { not: null };

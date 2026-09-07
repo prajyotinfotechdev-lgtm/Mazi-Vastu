@@ -149,7 +149,7 @@ export default async function AdminPropertiesPage({
                     </span>
                   </td>
                   <td style={{ padding: '1rem', color: 'var(--mv-text)', fontWeight: 500 }}>
-                    ₹{property.price.toLocaleString('en-IN')}
+                    {property.price ? `₹${property.price.toLocaleString('en-IN')}` : 'N/A'}
                     {property.priceType !== 'FIXED' && <span style={{ fontSize: '0.75rem', color: 'var(--mv-text-secondary)', marginLeft: '4px' }}>({property.priceType})</span>}
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>

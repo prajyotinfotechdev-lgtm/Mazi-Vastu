@@ -11,7 +11,7 @@ import { requireAdmin } from '@/lib/auth/middleware';
 import { PropertyService } from '@/modules/properties/service';
 import { updatePropertySchema } from '@/modules/properties/schemas';
 import { serializeAdminProperty } from '@/modules/properties/serializers';
-import { sendPushNotificationToAllCustomers } from '@/lib/push';
+import { sendPushNotificationToAll } from '@/lib/push';
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +44,7 @@ export async function PUT(
     const serialized = await serializeAdminProperty(property);
 
     if (oldProperty.status !== 'PUBLISHED' && property.status === 'PUBLISHED') {
-      sendPushNotificationToAllCustomers({
+      sendPushNotificationToAll({
         title: '🚨 New Property Alert!',
         body: `A new ${property.type} was just listed in ${property.city}. Click here to see it before anyone else!`,
         url: `/properties/${property.slug || property.id}`

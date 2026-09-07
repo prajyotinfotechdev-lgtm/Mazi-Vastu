@@ -14,14 +14,14 @@ export default function LeadsFilter({ propertyTypes = [], locations = [], servic
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const source = searchParams.get('source') || 'PROPERTY_INTEREST';
+  const source = searchParams?.get('source') || 'PROPERTY_INTEREST';
   
-  const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [status, setStatus] = useState(searchParams.get('status') || '');
-  const [propertyTypeId, setPropertyTypeId] = useState(searchParams.get('propertyTypeId') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [dateRange, setDateRange] = useState(searchParams.get('dateRange') || '');
-  const [serviceId, setServiceId] = useState(searchParams.get('serviceId') || '');
+  const [query, setQuery] = useState(searchParams?.get('q') || '');
+  const [status, setStatus] = useState(searchParams?.get('status') || '');
+  const [propertyTypeId, setPropertyTypeId] = useState(searchParams?.get('propertyTypeId') || '');
+  const [location, setLocation] = useState(searchParams?.get('location') || '');
+  const [dateRange, setDateRange] = useState(searchParams?.get('dateRange') || '');
+  const [serviceId, setServiceId] = useState(searchParams?.get('serviceId') || '');
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -41,7 +41,8 @@ export default function LeadsFilter({ propertyTypes = [], locations = [], servic
   // Debounce state to URL
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentSearchParamsStr = searchParams?.toString() || '';
+      const params = new URLSearchParams(currentSearchParamsStr);
       
       if (query) params.set('q', query); else params.delete('q');
       if (status) params.set('status', status); else params.delete('status');
@@ -51,7 +52,7 @@ export default function LeadsFilter({ propertyTypes = [], locations = [], servic
       if (serviceId) params.set('serviceId', serviceId); else params.delete('serviceId');
 
       const newQueryString = params.toString();
-      if (newQueryString !== searchParams.toString()) {
+      if (newQueryString !== currentSearchParamsStr) {
         params.set('page', '1');
         router.push(`?${params.toString()}`);
       }
