@@ -22,18 +22,55 @@ export default function VisitorPushOptIn() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if we should show the prompt
-    const hasDismissed = localStorage.getItem('mv_push_dismissed');
-    
     // Only check if notifications are supported
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
     
-    if (Notification.permission === 'granted' || hasDismissed) return;
+    // If permission is already granted, silently re-subscribe in the background
+    // (handles reinstalls, cache clears, etc. where the old subscription is dead)
+    if (Notification.permission === 'granted') {
+      silentResubscribe();
+      return;
+    }
+
+    // Check if we should show the prompt
+    const hasDismissed = localStorage.getItem('mv_push_dismissed');
+    if (hasDismissed) return;
 
     // Show after 3 seconds to let them browse first
     const timer = setTimeout(() => setShow(true), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Silently re-subscribe when permission is already granted
+  const silentResubscribe = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      const response = await fetch('/api/admin/push/vapid-public-key');
+      if (!response.ok) return;
+      const { publicKey } = await response.json();
+      const convertedVapidKey = urlBase64ToUint8Array(publicKey);
+
+      // Get existing subscription or create new one
+      let subscription = await registration.pushManager.getSubscription();
+      
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidKey
+        });
+      }
+
+      // Always save/update the subscription on the server
+      await fetch('/api/public/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(subscription)
+      });
+    } catch (err) {
+      console.error('Silent push resubscribe failed:', err);
+    }
+  };
 
   const handleSubscribe = async () => {
     setLoading(true);

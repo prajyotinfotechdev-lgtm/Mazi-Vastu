@@ -13,21 +13,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: { message: 'Invalid subscription object' } }, { status: 400 });
     }
 
-    // Check if subscription already exists
-    const existing = await prisma.pushSubscription.findUnique({
-      where: { endpoint: subscription.endpoint }
+    // Upsert: create new or reactivate/update existing subscription
+    await prisma.pushSubscription.upsert({
+      where: { endpoint: subscription.endpoint },
+      create: {
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        isActive: true,
+      },
+      update: {
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        isActive: true,
+        lastFailureAt: null,
+      },
     });
-
-    if (!existing) {
-      // Save anonymous visitor subscription
-      await prisma.pushSubscription.create({
-        data: {
-          endpoint: subscription.endpoint,
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth
-        }
-      });
-    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
