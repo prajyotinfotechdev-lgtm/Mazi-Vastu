@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { ArrowRight } from 'lucide-react';
 
 interface AdBannerProps {

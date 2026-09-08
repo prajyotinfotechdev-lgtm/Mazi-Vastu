@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Filter, X } from 'lucide-react';
+import { useLoader } from '@/components/providers/LoaderProvider';
 
 interface PropertyType {
   id: string;
@@ -18,6 +19,7 @@ interface PremiumSearchBarProps {
 
 export default function PremiumSearchBar({ propertyTypes, initialQuery = '', initialType = '', placeholder = "Search properties..." }: PremiumSearchBarProps) {
   const router = useRouter();
+  const { showLoader } = useLoader();
   const [query, setQuery] = useState(initialQuery);
   const [type, setType] = useState(initialType);
 
@@ -46,6 +48,8 @@ export default function PremiumSearchBar({ propertyTypes, initialQuery = '', ini
     // Close modals
     setIsMobileModalOpen(false);
     setIsFilterModalOpen(false);
+
+    showLoader('Searching...');
 
     // Soft routing to properties page
     router.push(`/properties?${params.toString()}`);

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import PropertyCard from './PropertyCard';
 
 interface Property {

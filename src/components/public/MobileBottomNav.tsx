@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { usePathname } from 'next/navigation';
 import { Home, Building2, Briefcase, Phone } from 'lucide-react';
 

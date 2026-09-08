@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { Home, Map, Building, Building2, Store, Mountain, Key, Info, ChevronDown, ChevronUp } from 'lucide-react';
 
 const getCategoryIcon = (name: string, size: number = 28) => {

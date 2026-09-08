@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { notFound } from 'next/navigation';
 import { Calendar, User, Phone, Mail, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const ad = await prisma.advertisement.findUnique({

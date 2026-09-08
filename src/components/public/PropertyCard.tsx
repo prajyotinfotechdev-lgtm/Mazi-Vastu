@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { MapPin, Maximize, ArrowUpRight, Home } from 'lucide-react';
 
 interface PropertyCardProps {

@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db/prisma';
 import PropertyCard from '@/components/public/PropertyCard';
 import PremiumPropertyCarousel from '@/components/public/PremiumPropertyCarousel';
 import AdBanner from '@/components/public/AdBanner';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { ArrowRight, CheckCircle2, Home, Map, Building, Building2, Store, Mountain, Key, Info, Truck, Scale, Compass, Hammer, Sparkles, Paintbrush, Briefcase, Landmark, MapPin } from 'lucide-react';

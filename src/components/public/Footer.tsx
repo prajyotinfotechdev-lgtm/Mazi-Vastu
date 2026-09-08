@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { getLanguage } from '@/lib/i18n/get-language';
 import { t } from '@/lib/i18n/translate';
 

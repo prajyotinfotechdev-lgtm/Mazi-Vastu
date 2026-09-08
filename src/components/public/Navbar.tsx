@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import Image from 'next/image';
 import { ArrowRight, Menu, X, Download } from 'lucide-react';
 import { usePathname } from 'next/navigation';

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { notFound } from 'next/navigation';
 import { MapPin, Maximize, Home, ShieldCheck, ArrowLeft, Image as ImageIcon } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import LeadForm from '@/components/public/LeadForm';
 import UnlockButton from '@/components/public/UnlockButton';
 import MediaGallery from '@/components/public/MediaGallery';

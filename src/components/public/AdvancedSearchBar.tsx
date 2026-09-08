@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import CustomCategorySelect from '@/components/public/CustomCategorySelect';
 import { t } from '@/lib/i18n/translate';
+import { useLoader } from '@/components/providers/LoaderProvider';
 
 interface PropertyType {
   id: string;
@@ -35,6 +36,7 @@ export default function AdvancedSearchBar({
   initialMaxPrice = ''
 }: AdvancedSearchBarProps) {
   const router = useRouter();
+  const { showLoader } = useLoader();
   const [query, setQuery] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [location, setLocation] = useState(initialLocation);
@@ -88,6 +90,7 @@ export default function AdvancedSearchBar({
     if (maxPrice) params.set('maxPrice', maxPrice);
 
     setIsFilterModalOpen(false);
+    showLoader(lang === 'mr' ? 'शोधत आहे...' : 'Searching...');
     router.push(`/properties?${params.toString()}`);
   };
 

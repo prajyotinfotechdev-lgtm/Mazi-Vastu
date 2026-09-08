@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import ServiceInquiryForm from '@/components/public/ServiceInquiryForm';
 import AdBanner from '@/components/public/AdBanner';
 import { Wrench, Phone, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { getLanguage } from '@/lib/i18n/get-language';
 import { t } from '@/lib/i18n/translate';
 

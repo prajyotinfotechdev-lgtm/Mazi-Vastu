@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { MapPin, Home, Building2, Map, ArrowRight, Star, TrendingUp, Phone } from 'lucide-react';
 import { LATUR_CITIES, LATUR_DISTRICT_META } from '@/lib/seo/latur-cities';
 import { prisma } from '@/lib/db/prisma';

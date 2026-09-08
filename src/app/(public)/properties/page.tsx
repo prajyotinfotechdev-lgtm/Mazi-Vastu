@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import PropertyCard from '@/components/public/PropertyCard';
 import AdBanner from '@/components/public/AdBanner';
 import { Filter, Search, Home, Map, Building, Building2, Store, Mountain, Key, Info, ChevronDown } from 'lucide-react';
-import Link from 'next/link';
+import Link from '@/components/ui/LoaderLink';
 import { cookies } from 'next/headers';
 import { getLanguage } from '@/lib/i18n/get-language';
 import { getDictionary } from '@/lib/i18n/translate';

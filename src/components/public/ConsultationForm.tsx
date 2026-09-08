@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Send, Loader2, User, Phone, Mail, Building, MapPin, IndianRupee } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { Language } from '@/lib/i18n/get-language';
+import { useLoader } from '@/components/providers/LoaderProvider';
 
 interface ConsultationFormProps {
   lang?: Language;
@@ -47,11 +48,13 @@ export default function ConsultationForm({ lang = 'en' }: ConsultationFormProps)
   });
   
   const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
+  const { showLoader, hideLoader } = useLoader();
   const t = tr[lang] || tr.en;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('LOADING');
+    showLoader(lang === 'mr' ? 'विनंती पाठवत आहे...' : 'Sending Request...');
 
     try {
       const res = await fetch('/api/public/consultation', {
@@ -63,10 +66,12 @@ export default function ConsultationForm({ lang = 'en' }: ConsultationFormProps)
       if (!res.ok) throw new Error('Failed to submit');
       
       setStatus('IDLE');
+      hideLoader();
       toast.success(t.success);
       setFormData({ name: '', phone: '', email: '', wantedPropertyType: '', wantedPropertyLocation: '', budget: '' });
     } catch (error) {
       setStatus('IDLE');
+      hideLoader();
       toast.error(t.error);
     }
   };
