@@ -1,13 +1,31 @@
-'use client';
+// ── NO 'use client' — server component avoids React hydration mismatch
+// with inline <style> tags. All interactivity here is CSS-only (links + hover).
 
 import { Flame, Key, MapPin, ArrowLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface Props {
   location: string;
+  lang?: string;
 }
 
-export default function LocationCategoryPicker({ location }: Props) {
+const copy = {
+  back:            { en: 'All Properties',                   mr: 'सर्व मालमत्ता' },
+  title:           { en: 'What are you looking for?',       mr: 'तुम्हाला काय हवे आहे?' },
+  subtitle:        { en: 'Select a category to see matching listings', mr: 'योग्य यादी पाहण्यासाठी एक श्रेणी निवडा' },
+  urgentLabel:     { en: 'Urgent Property',                  mr: 'तातडीची मालमत्ता' },
+  urgentDesc:      { en: 'Properties listed for urgent sale at competitive prices', mr: 'स्पर्धात्मक किमतीत तातडीने विक्रीसाठी उपलब्ध मालमत्ता' },
+  rentLabel:       { en: 'Rent Property',                    mr: 'भाड्याची मालमत्ता' },
+  rentDesc:        { en: 'Properties available for monthly rental in this area', mr: 'या परिसरात मासिक भाड्याने उपलब्ध मालमत्ता' },
+  hint:            { en: 'Tap a category to view listings',  mr: 'यादी पाहण्यासाठी श्रेणीवर टॅप करा' },
+  or:              { en: 'or',                               mr: 'किंवा' },
+};
+
+function tx(key: keyof typeof copy, lang: string) {
+  return lang === 'mr' ? copy[key].mr : copy[key].en;
+}
+
+export default function LocationCategoryPicker({ location, lang = 'en' }: Props) {
   return (
     <div style={{
       minHeight: '100vh',
@@ -15,14 +33,14 @@ export default function LocationCategoryPicker({ location }: Props) {
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)',
     }}>
       <style>{`
-        /* ── Page shell ───────────────────────────────────── */
+        /* ── Page shell ─────────────────────────────── */
         .lcp-page {
           max-width: 560px;
           margin: 0 auto;
           padding: 0 1rem;
         }
 
-        /* ── Top bar ──────────────────────────────────────── */
+        /* ── Top bar ─────────────────────────────────  */
         .lcp-topbar {
           display: flex;
           align-items: center;
@@ -36,13 +54,14 @@ export default function LocationCategoryPicker({ location }: Props) {
           font-size: 0.8125rem;
           text-decoration: none;
           font-family: Outfit, sans-serif;
-          padding: 8px 0;           /* bigger tap target */
+          padding: 8px 0;
           transition: color 0.15s;
           -webkit-tap-highlight-color: transparent;
         }
+        .lcp-back:hover { color: var(--mv-accent); }
         .lcp-back:active { color: var(--mv-accent); }
 
-        /* ── Hero header ──────────────────────────────────── */
+        /* ── Hero header ─────────────────────────────── */
         .lcp-hero {
           text-align: center;
           padding: 1.5rem 0 1.75rem;
@@ -77,7 +96,7 @@ export default function LocationCategoryPicker({ location }: Props) {
           line-height: 1.4;
         }
 
-        /* ── Card grid: row on mobile, cols on desktop ────── */
+        /* ── Cards: column on mobile, row on desktop ── */
         .lcp-cards {
           display: flex;
           flex-direction: column;
@@ -90,7 +109,7 @@ export default function LocationCategoryPicker({ location }: Props) {
           }
         }
 
-        /* ── Base card ────────────────────────────────────── */
+        /* ── Base card ───────────────────────────────── */
         .lcp-card {
           position: relative;
           display: flex;
@@ -104,12 +123,9 @@ export default function LocationCategoryPicker({ location }: Props) {
                       box-shadow 0.25s ease,
                       border-color 0.2s ease;
           -webkit-tap-highlight-color: transparent;
-          /* Full-width touch target */
           width: 100%;
           min-height: 84px;
         }
-
-        /* Glow overlay */
         .lcp-card::before {
           content: '';
           position: absolute;
@@ -118,55 +134,49 @@ export default function LocationCategoryPicker({ location }: Props) {
           transition: opacity 0.25s ease;
           pointer-events: none;
         }
-
-        /* Desktop hover */
         @media (hover: hover) {
-          .lcp-card:hover {
-            transform: translateY(-4px);
-          }
+          .lcp-card:hover { transform: translateY(-4px); }
           .lcp-card:hover::before { opacity: 1; }
           .lcp-card:hover .lcp-chevron { transform: translateX(3px); }
         }
-
-        /* Mobile active/pressed state */
         .lcp-card:active {
           transform: scale(0.98);
-          opacity: 0.9;
+          opacity: 0.88;
         }
 
-        /* ── Urgent card ──────────────────────────────────── */
+        /* ── Urgent card ─────────────────────────────── */
         .lcp-card-urgent {
-          background: linear-gradient(135deg, rgba(30, 15, 5, 0.98), rgba(20, 10, 3, 0.98));
-          border: 1px solid rgba(251, 146, 60, 0.22);
-          box-shadow: 0 4px 24px rgba(251, 146, 60, 0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+          background: linear-gradient(135deg, rgba(30,15,5,0.98), rgba(20,10,3,0.98));
+          border: 1px solid rgba(251,146,60,0.22);
+          box-shadow: 0 4px 24px rgba(251,146,60,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
         }
         .lcp-card-urgent::before {
-          background: radial-gradient(ellipse at 20% 50%, rgba(251, 146, 60, 0.1) 0%, transparent 60%);
+          background: radial-gradient(ellipse at 20% 50%, rgba(251,146,60,0.1) 0%, transparent 60%);
         }
         @media (hover: hover) {
           .lcp-card-urgent:hover {
-            border-color: rgba(251, 146, 60, 0.45);
-            box-shadow: 0 12px 40px rgba(251, 146, 60, 0.14), inset 0 1px 0 rgba(255,255,255,0.06);
+            border-color: rgba(251,146,60,0.45);
+            box-shadow: 0 12px 40px rgba(251,146,60,0.14), inset 0 1px 0 rgba(255,255,255,0.06);
           }
         }
 
-        /* ── Rent card ────────────────────────────────────── */
+        /* ── Rent card ───────────────────────────────── */
         .lcp-card-rent {
-          background: linear-gradient(135deg, rgba(5, 15, 32, 0.98), rgba(3, 10, 22, 0.98));
-          border: 1px solid rgba(99, 179, 237, 0.18);
-          box-shadow: 0 4px 24px rgba(99, 179, 237, 0.05), inset 0 1px 0 rgba(255,255,255,0.04);
+          background: linear-gradient(135deg, rgba(5,15,32,0.98), rgba(3,10,22,0.98));
+          border: 1px solid rgba(99,179,237,0.18);
+          box-shadow: 0 4px 24px rgba(99,179,237,0.05), inset 0 1px 0 rgba(255,255,255,0.04);
         }
         .lcp-card-rent::before {
-          background: radial-gradient(ellipse at 20% 50%, rgba(99, 179, 237, 0.09) 0%, transparent 60%);
+          background: radial-gradient(ellipse at 20% 50%, rgba(99,179,237,0.09) 0%, transparent 60%);
         }
         @media (hover: hover) {
           .lcp-card-rent:hover {
-            border-color: rgba(99, 179, 237, 0.4);
-            box-shadow: 0 12px 40px rgba(99, 179, 237, 0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+            border-color: rgba(99,179,237,0.4);
+            box-shadow: 0 12px 40px rgba(99,179,237,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
           }
         }
 
-        /* ── Icon bubble ──────────────────────────────────── */
+        /* ── Icon bubble ─────────────────────────────── */
         .lcp-icon {
           width: 52px;
           height: 52px;
@@ -183,15 +193,15 @@ export default function LocationCategoryPicker({ location }: Props) {
           .lcp-card:hover .lcp-icon { transform: scale(1.08); }
         }
         .lcp-icon-urgent {
-          background: rgba(251, 146, 60, 0.12);
-          border: 1px solid rgba(251, 146, 60, 0.25);
+          background: rgba(251,146,60,0.12);
+          border: 1px solid rgba(251,146,60,0.25);
         }
         .lcp-icon-rent {
-          background: rgba(99, 179, 237, 0.12);
-          border: 1px solid rgba(99, 179, 237, 0.22);
+          background: rgba(99,179,237,0.12);
+          border: 1px solid rgba(99,179,237,0.22);
         }
 
-        /* ── Text block ───────────────────────────────────── */
+        /* ── Text block ──────────────────────────────── */
         .lcp-text {
           flex: 1;
           min-width: 0;
@@ -207,7 +217,6 @@ export default function LocationCategoryPicker({ location }: Props) {
         }
         .lcp-card-label-urgent { color: #fb923c; }
         .lcp-card-label-rent   { color: #63b3ed; }
-
         .lcp-card-desc {
           font-size: 0.75rem;
           line-height: 1.4;
@@ -219,7 +228,7 @@ export default function LocationCategoryPicker({ location }: Props) {
           overflow: hidden;
         }
 
-        /* ── Chevron ──────────────────────────────────────── */
+        /* ── Chevron ─────────────────────────────────── */
         .lcp-chevron {
           flex-shrink: 0;
           position: relative;
@@ -227,7 +236,10 @@ export default function LocationCategoryPicker({ location }: Props) {
           transition: transform 0.2s ease;
         }
 
-        /* ── Divider between cards (mobile only) ──────────── */
+        /* ── Divider (mobile only) ───────────────────── */
+        .lcp-divider {
+          display: none;
+        }
         @media (max-width: 559px) {
           .lcp-divider {
             display: flex;
@@ -247,9 +259,9 @@ export default function LocationCategoryPicker({ location }: Props) {
             background: rgba(255,255,255,0.07);
           }
         }
+
+        /* ── Desktop card layout ─────────────────────── */
         @media (min-width: 560px) {
-          .lcp-divider { display: none; }
-          /* On desktop, make cards equal height */
           .lcp-card {
             flex-direction: column;
             align-items: flex-start;
@@ -263,11 +275,11 @@ export default function LocationCategoryPicker({ location }: Props) {
             margin-bottom: 0.25rem;
           }
           .lcp-card-label { font-size: 1.125rem; margin-bottom: 6px; }
-          .lcp-card-desc { -webkit-line-clamp: 3; font-size: 0.8125rem; }
-          .lcp-chevron { margin-top: 0.75rem; }
+          .lcp-card-desc  { -webkit-line-clamp: 3; font-size: 0.8125rem; }
+          .lcp-chevron    { margin-top: 0.75rem; }
         }
 
-        /* ── Bottom hint ──────────────────────────────────── */
+        /* ── Bottom hint ─────────────────────────────── */
         .lcp-hint {
           text-align: center;
           color: var(--mv-text-secondary);
@@ -278,12 +290,12 @@ export default function LocationCategoryPicker({ location }: Props) {
         }
       `}</style>
 
-      {/* Top bar with back link */}
       <div className="lcp-page">
+        {/* Back link */}
         <div className="lcp-topbar">
           <Link href="/properties" className="lcp-back">
             <ArrowLeft size={14} />
-            All Properties
+            {tx('back', lang)}
           </Link>
         </div>
 
@@ -293,14 +305,14 @@ export default function LocationCategoryPicker({ location }: Props) {
             <MapPin size={12} />
             {location}
           </div>
-          <h1 className="lcp-title">What are you looking for?</h1>
-          <p className="lcp-subtitle">Select a category to see matching listings</p>
+          <h1 className="lcp-title">{tx('title', lang)}</h1>
+          <p className="lcp-subtitle">{tx('subtitle', lang)}</p>
         </div>
 
         {/* Cards */}
         <div className="lcp-cards">
 
-          {/* Urgent Property */}
+          {/* Urgent */}
           <Link
             href={`/properties?location=${encodeURIComponent(location)}&category=urgent`}
             className="lcp-card lcp-card-urgent"
@@ -309,17 +321,15 @@ export default function LocationCategoryPicker({ location }: Props) {
               <Flame size={26} color="#fb923c" />
             </div>
             <div className="lcp-text">
-              <p className="lcp-card-label lcp-card-label-urgent">Urgent Property</p>
-              <p className="lcp-card-desc">
-                Properties listed for urgent sale at competitive prices
-              </p>
+              <p className="lcp-card-label lcp-card-label-urgent">{tx('urgentLabel', lang)}</p>
+              <p className="lcp-card-desc">{tx('urgentDesc', lang)}</p>
             </div>
             <ChevronRight size={18} color="#fb923c" className="lcp-chevron" />
           </Link>
 
-          <div className="lcp-divider">or</div>
+          <div className="lcp-divider">{tx('or', lang)}</div>
 
-          {/* Rent Property */}
+          {/* Rent */}
           <Link
             href={`/properties?location=${encodeURIComponent(location)}&category=rent`}
             className="lcp-card lcp-card-rent"
@@ -328,17 +338,15 @@ export default function LocationCategoryPicker({ location }: Props) {
               <Key size={26} color="#63b3ed" />
             </div>
             <div className="lcp-text">
-              <p className="lcp-card-label lcp-card-label-rent">Rent Property</p>
-              <p className="lcp-card-desc">
-                Properties available for monthly rental in this area
-              </p>
+              <p className="lcp-card-label lcp-card-label-rent">{tx('rentLabel', lang)}</p>
+              <p className="lcp-card-desc">{tx('rentDesc', lang)}</p>
             </div>
             <ChevronRight size={18} color="#63b3ed" className="lcp-chevron" />
           </Link>
 
         </div>
 
-        <p className="lcp-hint">Tap a category to view listings</p>
+        <p className="lcp-hint">{tx('hint', lang)}</p>
       </div>
     </div>
   );

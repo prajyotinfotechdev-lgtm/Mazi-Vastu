@@ -50,7 +50,7 @@ export default async function PropertiesSearchPage({
 
   // ─── Step 1: No category selected → show two-option picker ───────────────────
   if (isSpecialLocation && !category) {
-    return <LocationCategoryPicker location={location} />;
+    return <LocationCategoryPicker location={location} lang={lang} />;
   }
 
   // ─── Step 2a: Urgent properties (from UrgentProperty table) ──────────────────
@@ -126,14 +126,14 @@ export default async function PropertiesSearchPage({
               href={`/properties?location=${encodeURIComponent(location)}`}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--mv-text-secondary)', fontSize: '0.875rem', textDecoration: 'none', marginBottom: '1.25rem', fontFamily: 'Outfit, sans-serif' }}
             >
-              <ArrowLeft size={14} /> Back to {location}
+              <ArrowLeft size={14} /> {lang === 'mr' ? `${location} वर परत` : `Back to ${location}`}
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '0.75rem' }}>
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(251,146,60,0.15)', border: '1px solid rgba(251,146,60,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Flame size={20} color="#fb923c" />
               </div>
               <h1 className="mv-heading-xl" style={{ color: 'var(--mv-text)', margin: 0 }}>
-                Urgent Properties
+                {lang === 'mr' ? 'तातडीच्या मालमत्ता' : 'Urgent Properties'}
               </h1>
             </div>
             <p style={{ color: 'var(--mv-text-secondary)', fontFamily: 'Outfit, sans-serif' }}>
@@ -162,13 +162,13 @@ export default async function PropertiesSearchPage({
                 <Flame size={32} color="#fb923c" />
               </div>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit, sans-serif', color: 'var(--mv-text)', margin: 0 }}>
-                No Urgent Properties Right Now
+                {lang === 'mr' ? 'सध्या कोणत्याही तातडीच्या मालमत्ता नाहीत' : 'No Urgent Properties Right Now'}
               </h3>
               <p style={{ color: 'var(--mv-text-secondary)', margin: 0, maxWidth: '320px' }}>
-                No properties available in this category right now. Check back soon or explore other options.
+                {lang === 'mr' ? 'या श्रेणीत सध्या कोणतीही मालमत्ता उपलब्ध नाही. लवकरच परत तपासा किंवा इतर पर्याय पाहा.' : 'No properties available in this category right now. Check back soon or explore other options.'}
               </p>
               <Link href={`/properties?location=${encodeURIComponent(location)}&category=rent`} className="mv-btn mv-btn-secondary" style={{ marginTop: '0.5rem' }}>
-                View Rent Properties Instead
+                {lang === 'mr' ? 'त्याऐवजी भाड्याच्या मालमत्ता पाहा' : 'View Rent Properties Instead'}
               </Link>
             </div>
           ) : (
