@@ -6,7 +6,7 @@
     "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
-    "start": "prisma migrate deploy && next start",
+    "start": "sh -c 'npx prisma migrate resolve --applied 20260822034547_first_migration; npx prisma migrate deploy && next start'",
     "lint": "eslint src/ --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\"",
