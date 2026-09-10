@@ -81,19 +81,43 @@ export default async function PropertiesSearchPage({
             }
           }
           .mv-urgent-text-card {
-            background: linear-gradient(145deg, rgba(25,15,5,0.95), rgba(15,8,2,0.95));
+            background: linear-gradient(135deg, rgba(30,15,5,0.97), rgba(20,10,3,0.97));
             border: 1px solid rgba(251,146,60,0.2);
             border-radius: 14px;
-            padding: 1.125rem 1.25rem;
+            padding: 0.875rem 1rem;
             display: flex;
             align-items: flex-start;
-            gap: 0.875rem;
+            gap: 0.75rem;
             transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-tap-highlight-color: transparent;
           }
-          .mv-urgent-text-card:hover {
-            border-color: rgba(251,146,60,0.4);
-            box-shadow: 0 4px 20px rgba(251,146,60,0.1);
+          .mv-urgent-text-card:active {
+            opacity: 0.85;
+            transform: scale(0.99);
           }
+          @media (hover: hover) {
+            .mv-urgent-text-card:hover {
+              border-color: rgba(251,146,60,0.4);
+              box-shadow: 0 4px 20px rgba(251,146,60,0.1);
+            }
+          }
+          .mv-urgent-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            background: rgba(251,146,60,0.12);
+            color: #fb923c;
+            border: 1px solid rgba(251,146,60,0.25);
+            border-radius: 5px;
+            padding: 2px 7px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+
         `}</style>
 
         <div className="mv-inner-header-bg">
@@ -179,15 +203,7 @@ export default async function PropertiesSearchPage({
                       </span>
                     </div>
                   </div>
-                  <span style={{
-                    flexShrink: 0, fontSize: '0.6875rem', fontWeight: 700,
-                    background: 'rgba(251,146,60,0.12)', color: '#fb923c',
-                    border: '1px solid rgba(251,146,60,0.25)', borderRadius: '6px',
-                    padding: '3px 8px', letterSpacing: '0.04em', textTransform: 'uppercase',
-                    alignSelf: 'flex-start',
-                  }}>
-                    URGENT
-                  </span>
+                  <span className="mv-urgent-badge">URGENT</span>
                 </div>
               ))}
             </div>
