@@ -67,6 +67,7 @@ export default async function CityLandingPage({ params }: PageProps) {
       status: 'PUBLISHED',
       deletedAt: null,
       OR: [
+        { city: city.slug },
         { approximateLocation: { contains: city.name, mode: 'insensitive' } },
         { approximateLocation: { contains: city.taluka, mode: 'insensitive' } },
         { title: { contains: city.name, mode: 'insensitive' } },
@@ -83,6 +84,7 @@ export default async function CityLandingPage({ params }: PageProps) {
       status: 'PUBLISHED',
       deletedAt: null,
       OR: [
+        { city: city.slug },
         { approximateLocation: { contains: city.name, mode: 'insensitive' } },
         { approximateLocation: { contains: city.taluka, mode: 'insensitive' } },
       ],

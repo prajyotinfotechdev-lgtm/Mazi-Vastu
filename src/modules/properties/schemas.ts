@@ -11,6 +11,7 @@ export const createPropertySchema = z.object({
   propertyTypeId: z.string().min(1, 'Property type is required'),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD', 'RENTED', 'INACTIVE']).optional(),
   approximateLocation: z.string().max(500).optional(),
+  city: z.string().max(100).optional(),
   gatedLocation: z.string().max(500).optional(),
   size: z.number().positive().optional(),
   sizeUnit: z.enum(['SQFT', 'SQMT', 'ACRE', 'HECTARE', 'GUNTHA']).optional(),

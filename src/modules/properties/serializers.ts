@@ -21,6 +21,7 @@ export interface PublicPropertyDTO {
   propertyType: { id: string; name: string; slug: string };
   status: string;
   approximateLocation: string | null;
+  city: string | null;
   price: number | null;
   priceType: string | null;
   metadata: Record<string, unknown>;
@@ -77,6 +78,7 @@ export async function serializePublicProperty(
     },
     status: property.status,
     approximateLocation: property.approximateLocation,
+    city: property.city,
     // Size is gated by default for anonymous users
     price: property.price,
     priceType: property.priceType,

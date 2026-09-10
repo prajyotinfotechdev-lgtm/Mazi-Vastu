@@ -971,3 +971,42 @@ select optgroup {
   background: #FF0000;
   border-color: #FF0000;
 }
+/* --- URGENT PROPERTIES BOX --------------------------------- */
+.mv-urgent-container {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .mv-urgent-container {
+    padding: 1.5rem;
+  }
+}
+
+.mv-urgent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.mv-urgent-item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .mv-urgent-item {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .mv-urgent-item-content {
+    flex-direction: row;
+    align-items: baseline;
+  }
+}

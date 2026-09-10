@@ -8,6 +8,7 @@ import { useLoader } from '@/components/providers/LoaderProvider';
 import MediaUploader, { UploadedMedia } from './MediaUploader';
 import AddCustomFieldModal from './AddCustomFieldModal';
 import AddPropertyTypeModal from './AddPropertyTypeModal';
+import { LATUR_CITIES } from '@/lib/seo/latur-cities';
 
 interface PropertyType {
   id: string;
@@ -47,6 +48,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
     size: initialData?.size?.toString() || '',
     sizeUnit: initialData?.sizeUnit || 'SQFT',
     approximateLocation: initialData?.approximateLocation || '',
+    city: initialData?.city || '',
     gatedLocation: initialData?.gatedLocation || '',
   });
 
@@ -111,6 +113,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
         size: parseFloat(formData.size),
         sizeUnit: formData.sizeUnit,
         approximateLocation: formData.approximateLocation,
+        city: formData.city,
         gatedLocation: formData.gatedLocation,
         metadata,
         media,
@@ -390,8 +393,30 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                   onFocus={() => setFocusedField('approximateLocation')}
                   onBlur={() => setTimeout(() => { if(focusedField === 'approximateLocation') setFocusedField(null) }, 200)}
                   style={getInputStyle('approximateLocation')}
-                  placeholder="e.g. Kothrud, Pune"
+                  placeholder="e.g. Ausa Road"
                 />
+                
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                  {['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'].map(loc => (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, approximateLocation: loc })}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--mv-border)',
+                        background: formData.approximateLocation === loc ? 'var(--mv-accent)' : 'transparent',
+                        color: formData.approximateLocation === loc ? '#000' : 'var(--mv-text)',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {loc}
+                    </button>
+                  ))}
+                </div>
                 
                 {/* Autocomplete Dropdown */}
                 {showLocationSuggestions && (
@@ -436,6 +461,24 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                 )}
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginTop: '0.5rem' }}>This will be visible to everyone browsing the website.</p>
+            </div>
+
+            <div>
+              <label style={getLabelStyle()}>City (Latur District) *</label>
+              <select
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                onFocus={() => setFocusedField('city')}
+                onBlur={() => setFocusedField(null)}
+                style={getInputStyle('city')}
+              >
+                <option value="">Select a city...</option>
+                {LATUR_CITIES.map(city => (
+                  <option key={city.slug} value={city.slug}>{city.name}</option>
+                ))}
+              </select>
+              <p style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginTop: '0.5rem' }}>Select the city this property belongs to for correct SEO and filtering.</p>
             </div>
 
             <div>

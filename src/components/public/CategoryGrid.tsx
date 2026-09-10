@@ -13,6 +13,8 @@ const getCategoryIcon = (name: string, size: number = 28) => {
   if (lower.includes('shop') || lower.includes('commercial')) return <Store size={size} strokeWidth={1.5} />;
   if (lower.includes('land')) return <Mountain size={size} strokeWidth={1.5} />;
   if (lower.includes('rent')) return <Key size={size} strokeWidth={1.5} />;
+  if (lower.includes('bungalow')) return <Home size={size} strokeWidth={1.5} />;
+  if (lower.includes('godown')) return <Building size={size} strokeWidth={1.5} />;
   return <Info size={size} strokeWidth={1.5} />;
 };
 
@@ -29,7 +31,9 @@ const marathiCategoryMap: Record<string, string> = {
   'Flat': 'फ्लॅट',
   'Shop': 'दुकान',
   'Land': 'जमीन',
-  'Rent': 'भाड्याने'
+  'Rent': 'भाड्याने',
+  'Bungalow': 'बंगला',
+  'Godown': 'गोदाम'
 };
 
 export default function CategoryGrid({ propertyTypes, lang = 'mr' }: { propertyTypes: PropertyType[], lang?: string }) {

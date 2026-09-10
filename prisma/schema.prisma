@@ -71,6 +71,7 @@ model Property {
   propertyTypeId      String
   status              PropertyStatus @default(DRAFT)
   approximateLocation String?        // Public-facing location
+  city                String?        // Exact city slug for Latur District cities
   gatedLocation       String?        // Visible only to registered visitors
   size                Float?
   sizeUnit            SizeUnit?
@@ -502,4 +503,42 @@ model AuditLog {
   @@index([action])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// URGENT PROPERTIES (Text-only listings)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model UrgentProperty {
+  id        String   @id @default(cuid())
+  title     String   @db.Text
+  location  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("urgent_properties")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SITE SETTINGS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  founderName     String   @default("Kishor Lavte")
+  founderImage    String?  // URL to cloudinary
+  officeAddress   String?  @db.Text
+  phone           String?
+  email           String?
+  disclosure      String?  @db.Text
+  instagramUrl    String?
+  facebookUrl     String?
+  youtubeUrl      String?
+  whatsappUrl     String?
+  linkedinUrl     String?
+  telegramUrl     String?
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
 }

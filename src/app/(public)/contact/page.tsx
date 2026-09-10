@@ -1,6 +1,7 @@
 import { getLanguage } from '@/lib/i18n/get-language';
 import ConsultationForm from '@/components/public/ConsultationForm';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, Instagram, Facebook, Youtube, UserCircle, MessageCircle, Linkedin, Send } from 'lucide-react';
+import { prisma } from '@/lib/db/prisma';
 
 export const metadata = {
   title: 'Contact & Consultation | MaziVastu',
@@ -26,14 +27,35 @@ const tr: Record<string, Record<string, string>> = {
   }
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
   const lang = getLanguage();
   const t = tr[lang] || tr.en;
 
+  // Fetch dynamic site settings
+  let settings = null;
+  try {
+    settings = await prisma.siteSettings.findFirst();
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+  }
+
+  const founderName = settings?.founderName || 'Kishor Lavte';
+  const founderImage = settings?.founderImage || '';
+  const address = settings?.officeAddress || t.address;
+  const phone = settings?.phone || t.phone;
+  const email = settings?.email || t.email;
+  const disclosure = settings?.disclosure || '';
+  const insta = settings?.instagramUrl || '';
+  const fb = settings?.facebookUrl || '';
+  const yt = settings?.youtubeUrl || '';
+  const wa = settings?.whatsappUrl || '';
+  const li = settings?.linkedinUrl || '';
+  const tg = settings?.telegramUrl || '';
+
   return (
-    <main style={{ 
-      background: 'var(--mv-bg)', 
-      minHeight: '100vh', 
+    <main style={{
+      background: 'var(--mv-bg)',
+      minHeight: '100vh',
       padding: 'clamp(2rem, 8vw, 4rem) 0',
       position: 'relative',
       overflow: 'hidden'
@@ -52,12 +74,12 @@ export default function ContactPage() {
       }}></div>
 
       <div className="mv-container" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', gap: 'clamp(2rem, 5vw, 3rem)' }}>
-        
+
         <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', padding: '0 1rem' }}>
-          <h1 style={{ 
-            fontSize: 'clamp(2rem, 6vw, 3rem)', 
-            fontWeight: 800, 
-            color: 'var(--mv-text)', 
+          <h1 style={{
+            fontSize: 'clamp(2rem, 6vw, 3rem)',
+            fontWeight: 800,
+            color: 'var(--mv-text)',
             marginBottom: '1rem',
             fontFamily: 'Outfit, sans-serif',
             letterSpacing: '-0.02em',
@@ -65,26 +87,186 @@ export default function ContactPage() {
           }}>
             {t.title}
           </h1>
-          <p style={{ 
+          <p style={{
             fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-            color: 'var(--mv-text-secondary)', 
-            lineHeight: 1.6 
+            color: 'var(--mv-text-secondary)',
+            lineHeight: 1.6
           }}>
             {t.subtitle}
           </p>
         </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr', 
-          gap: 'clamp(1.5rem, 4vw, 3rem)', 
-          alignItems: 'start', 
-          '@media (min-width: 1024px)': { gridTemplateColumns: '1.5fr 1fr' } 
-        } as React.CSSProperties}>
-          
+        <div className="mv-contact-layout">
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .mv-contact-layout {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: clamp(1.5rem, 4vw, 3rem);
+                align-items: start;
+              }
+              @media (min-width: 1024px) {
+                .mv-contact-layout {
+                  grid-template-columns: 1fr 1.5fr;
+                }
+              }
+            `
+          }} />
+
+          {/* Dynamic Info Section (Founder & Contact) */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'clamp(1.5rem, 4vw, 2rem)',
+            background: 'linear-gradient(180deg, var(--mv-bg-elevated) 0%, rgba(20,20,20,1) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: '1px solid rgba(245, 197, 24, 0.3)',
+            padding: 'clamp(1.5rem, 5vw, 3rem)',
+            borderRadius: 'clamp(16px, 4vw, 24px)',
+            boxShadow: '0 16px 32px rgba(0,0,0,0.5)',
+          }}>
+            <h3 style={{
+              fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
+              fontWeight: 700,
+              marginBottom: '1rem',
+              color: 'var(--mv-text)',
+              fontFamily: 'Outfit, sans-serif'
+            }}>
+              {t.contactInfo}
+            </h3>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '100px 1fr',
+              gap: '2rem',
+              alignItems: 'start'
+            }} className="mv-contact-details-inner">
+              <style dangerouslySetInnerHTML={{
+                __html: `
+                  @media (max-width: 480px) {
+                    .mv-contact-details-inner {
+                      grid-template-columns: 1fr !important;
+                      text-align: center;
+                    }
+                  }
+                `
+              }} />
+
+              {/* Founder Area */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '2px solid var(--mv-accent)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(255,255,255,0.05)'
+                }}>
+                  {founderImage ? (
+                    <img src={founderImage} alt={founderName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <UserCircle size={48} color="var(--mv-accent)" />
+                  )}
+                </div>
+                <div style={{ textAlign: 'center', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Founder</div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-text)' }}>{founderName}</div>
+                </div>
+              </div>
+
+              {/* Details Area */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-accent)', marginBottom: '0.25rem' }}>Office Address</div>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--mv-text-secondary)', lineHeight: 1.5, wordBreak: 'break-word', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                    <MapPin size={16} color="var(--mv-text-muted)" style={{ marginTop: '3px', flexShrink: 0 }} />
+                    <span>{address}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-accent)', marginBottom: '0.25rem' }}>Contact</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--mv-text-secondary)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Phone size={14} color="var(--mv-text-muted)" /> {phone}
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--mv-text-secondary)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Mail size={14} color="var(--mv-text-muted)" /> {email}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Disclosure */}
+            {disclosure && (
+              <div style={{
+                marginTop: '1rem',
+                paddingTop: '1.5rem',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                fontSize: '0.8rem',
+                lineHeight: 1.6,
+                color: 'var(--mv-text-muted)'
+              }}>
+                <strong style={{ color: 'var(--mv-text)' }}>Disclosure:</strong> {disclosure}
+              </div>
+            )}
+
+            {/* Follow Us */}
+            {(insta || fb || yt || wa || li || tg) && (
+              <div style={{
+                marginTop: '1rem',
+                paddingTop: '1.5rem',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem'
+              }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Follow Us</div>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {wa && (
+                    <a href={wa} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#25D366'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <MessageCircle size={24} />
+                    </a>
+                  )}
+                  {insta && (
+                    <a href={insta} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#E1306C'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <Instagram size={24} />
+                    </a>
+                  )}
+                  {fb && (
+                    <a href={fb} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1877F2'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <Facebook size={24} />
+                    </a>
+                  )}
+                  {yt && (
+                    <a href={yt} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#FF0000'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <Youtube size={24} />
+                    </a>
+                  )}
+                  {li && (
+                    <a href={li} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#0A66C2'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <Linkedin size={24} />
+                    </a>
+                  )}
+                  {tg && (
+                    <a href={tg} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#0088cc'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                      <Send size={24} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+          </div>
+
           {/* Form Section */}
-          <div style={{ 
-            background: 'var(--mv-bg-elevated)', 
+          <div style={{
+            background: 'var(--mv-bg-elevated)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
             borderTop: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: 'clamp(16px, 4vw, 24px)',
@@ -92,99 +274,6 @@ export default function ContactPage() {
             boxShadow: '0 24px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.8)',
           }}>
             <ConsultationForm lang={lang} />
-          </div>
-
-          {/* Info Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 4vw, 2rem)' }}>
-            <div style={{ 
-              background: 'linear-gradient(180deg, var(--mv-bg-elevated) 0%, rgba(20,20,20,1) 100%)', 
-              border: '1px solid rgba(255, 255, 255, 0.06)', 
-              borderTop: '1px solid rgba(245, 197, 24, 0.3)',
-              color: 'var(--mv-text)', 
-              padding: 'clamp(1.5rem, 5vw, 3rem)', 
-              borderRadius: 'clamp(16px, 4vw, 24px)',
-              boxShadow: '0 16px 32px rgba(0,0,0,0.5)',
-            }}>
-              <h3 style={{ 
-                fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
-                fontWeight: 700,
-                marginBottom: 'clamp(1.5rem, 4vw, 2rem)', 
-                color: 'var(--mv-text)',
-                fontFamily: 'Outfit, sans-serif'
-              }}>
-                {t.contactInfo}
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 4vw, 2rem)' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
-                  <div style={{ 
-                    background: 'linear-gradient(135deg, rgba(245, 197, 24, 0.2) 0%, rgba(245, 197, 24, 0.05) 100%)', 
-                    padding: 'clamp(0.75rem, 2vw, 1rem)', 
-                    borderRadius: '16px',
-                    border: '1px solid rgba(245, 197, 24, 0.2)',
-                    flexShrink: 0
-                  }}>
-                    <MapPin size={24} color="var(--mv-accent)" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Office Address</div>
-                    <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', lineHeight: 1.5, color: 'var(--mv-text)', wordBreak: 'break-word' }}>{t.address}</div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
-                  <div style={{ 
-                    background: 'linear-gradient(135deg, rgba(245, 197, 24, 0.2) 0%, rgba(245, 197, 24, 0.05) 100%)', 
-                    padding: 'clamp(0.75rem, 2vw, 1rem)', 
-                    borderRadius: '16px',
-                    border: '1px solid rgba(245, 197, 24, 0.2)',
-                    flexShrink: 0
-                  }}>
-                    <Phone size={24} color="var(--mv-accent)" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone Support</div>
-                    <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', lineHeight: 1.5, color: 'var(--mv-text)' }}>{t.phone}</div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
-                  <div style={{ 
-                    background: 'linear-gradient(135deg, rgba(245, 197, 24, 0.2) 0%, rgba(245, 197, 24, 0.05) 100%)', 
-                    padding: 'clamp(0.75rem, 2vw, 1rem)', 
-                    borderRadius: '16px',
-                    border: '1px solid rgba(245, 197, 24, 0.2)',
-                    flexShrink: 0
-                  }}>
-                    <Mail size={24} color="var(--mv-accent)" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</div>
-                    <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.125rem)', lineHeight: 1.5, color: 'var(--mv-text)', wordBreak: 'break-all' }}>{t.email}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ 
-              borderRadius: 'clamp(16px, 4vw, 24px)', 
-              overflow: 'hidden', 
-              height: '300px', 
-              background: 'var(--mv-bg-surface)', 
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.3)'
-            }}>
-              {/* Placeholder for map */}
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m3!1d121058.92836561578!2d73.79292695574044!3d18.524766326629938!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf2e67461101%3A0x828d43bf9d9ee343!2sPune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.9)' }} 
-                allowFullScreen={false} 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
           </div>
 
         </div>

@@ -1,4 +1,5 @@
 import PushNotificationToggle from '@/components/admin/PushNotificationToggle';
+import SiteSettingsForm from '@/components/admin/SiteSettingsForm';
 
 export default function AdminSettingsPage() {
   return (
@@ -15,10 +16,11 @@ export default function AdminSettingsPage() {
           <PushNotificationToggle />
         </section>
 
-        <section className="mv-card">
-          <p style={{ color: 'var(--mv-text-secondary)', margin: 0 }}>
-            More settings coming soon!
-          </p>
+        <section className="mv-card" style={{ marginTop: '2rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--mv-text)', paddingBottom: '0.75rem', borderBottom: '1px solid var(--mv-border)' }}>
+            Site Settings & Contact Info
+          </h2>
+          <SiteSettingsForm />
         </section>
       </div>
     </div>

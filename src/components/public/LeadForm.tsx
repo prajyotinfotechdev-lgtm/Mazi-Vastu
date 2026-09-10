@@ -99,12 +99,8 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
         <input type="tel" required className="mv-input" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} />
       </div>
       <div>
-        <label className="mv-label-text">{t('form.lead.emailLabel', lang)}</label>
-        <input type="email" className="mv-input" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} />
-      </div>
-      <div>
-        <label className="mv-label-text">{t('form.lead.messageLabel', lang)}</label>
-        <textarea className="mv-textarea" rows={3} value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} placeholder={t('form.lead.messagePlaceholder', lang)} />
+        <label className="mv-label-text">{lang === 'mr' ? 'बजेट (पर्यायी)' : 'Budget (Optional)'}</label>
+        <input type="text" className="mv-input" value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} placeholder={lang === 'mr' ? 'उदा. ५० लाख' : 'e.g. 50 Lacs'} />
       </div>
       
       <button type="submit" disabled={status === 'LOADING'} className="mv-btn mv-btn-primary mv-btn-lg" style={{ width: '100%' }}>

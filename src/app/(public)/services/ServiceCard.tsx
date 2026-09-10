@@ -15,7 +15,7 @@ interface ServiceCardProps {
     iconUrl: string | null;
     whatsappNumber: string;
     whatsappMessageTemplate: string;
-    providerContacts?: { name: string; number: string }[] | null;
+    providerContacts?: { name: string; number: string; photoUrl?: string }[] | null;
   };
   isRegistered: boolean;
   lang?: string;
@@ -335,7 +335,19 @@ export default function ServiceCard({ service, isRegistered, lang = 'en' }: Serv
             {service.description || tr.defaultDescription}
           </p>
 
-          <div className="svc-bottom" style={{ justifyContent: 'flex-end' }}>
+          <div className="svc-bottom" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {service.price ? (
+                <div>
+                  <span className="svc-price-val">₹{service.price}</span>
+                  {service.priceUnit && <span className="svc-price-unit">{service.priceUnit}</span>}
+                </div>
+              ) : (
+                <span style={{ fontSize: '0.85rem', color: '#f5c518', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                  {tr.getService || 'View Details'}
+                </span>
+              )}
+            </div>
             <div className="svc-arrow">
               <ArrowUpRight size={16} />
             </div>

@@ -13,7 +13,10 @@ import { t } from '@/lib/i18n/translate';
 import { staticArticles } from '@/lib/blog/articles';
 import { LATUR_CITIES } from '@/lib/seo/latur-cities';
 
-import CategoryGrid from '@/components/public/CategoryGrid';
+import dynamic from 'next/dynamic';
+const CategoryGrid = dynamic(() => import('@/components/public/CategoryGrid'), { ssr: false });
+import CustomerFormModal from '@/components/public/CustomerFormModal';
+import UrgentPropertiesBox from '@/components/public/UrgentPropertiesBox';
 
 // ISR disabled since cookies() are used in the RootLayout
 // export const revalidate = 300;
@@ -83,7 +86,8 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
     propertiesCount,
     servicesCount,
     ad,
-    uniqueLocationsData
+    uniqueLocationsData,
+    urgentProperties,
   ] = await Promise.all([
     prisma.property.findMany({
       where: { status: 'PUBLISHED', deletedAt: null },
@@ -112,7 +116,11 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
       where: { status: 'PUBLISHED', deletedAt: null },
       select: { approximateLocation: true },
       distinct: ['approximateLocation']
-    })
+    }),
+    prisma.urgentProperty.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' },
+    }),
   ]);
 
   const rawLocations = uniqueLocationsData.map((l: any) => l.approximateLocation?.trim()).filter(Boolean) as string[];
@@ -121,17 +129,10 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
 
   const cookieStore = cookies();
   const visitorCookie = cookieStore.get('visitor_info');
-  const isLocked = !visitorCookie;
+  const isLocked = false;
 
-  const safeProperties = properties.map(p => ({
-    ...p, price: isLocked ? 0 : p.price, priceType: isLocked ? 'HIDDEN' : p.priceType,
-    approximateLocation: isLocked ? 'Location hidden' : p.approximateLocation, size: isLocked ? 0 : p.size,
-  }));
-
-  const safeSearchedProperties = searchedProperties.map((p: any) => ({
-    ...p, price: isLocked ? 0 : p.price, priceType: isLocked ? 'HIDDEN' : p.priceType,
-    approximateLocation: isLocked ? 'Location hidden' : p.approximateLocation, size: isLocked ? 0 : p.size,
-  })) || [];
+  const safeProperties = properties;
+  const safeSearchedProperties = searchedProperties;
 
   const clientsCount = 1250 + (propertiesCount * 3);
 
@@ -201,9 +202,67 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
           overflow: hidden;
         }
 
+        .mv-customer-form-wrapper {
+          position: absolute;
+          top: 76px;
+          left: 16px;
+          z-index: 60;
+        }
+        .mv-customer-form-btn {
+          white-space: nowrap;
+          background: var(--mv-accent);
+          color: #000;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-weight: 700;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(245, 197, 24, 0.4);
+          font-family: Outfit, sans-serif;
+          font-size: 0.8125rem;
+          transition: transform 0.2s;
+        }
+        .mv-customer-form-btn:active {
+          transform: scale(0.95);
+        }
+        @media (min-width: 1024px) {
+          .mv-customer-form-wrapper {
+            top: 80px;
+            left: 40px;
+            right: auto;
+          }
+          .mv-customer-form-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+          }
+        }
+
         .mv-categories-section {
           padding: 24px var(--mv-space-md) 24px;
         }
+        
+        .mv-quick-location {
+          display: flex;
+          align-items: center;
+          padding: 8px 16px;
+          background: rgba(245, 197, 24, 0.1);
+          border: 1px solid rgba(245, 197, 24, 0.3);
+          border-radius: 24px;
+          color: var(--mv-text);
+          font-size: 0.875rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .mv-quick-location:hover {
+          background: var(--mv-accent);
+          color: #000;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(245, 197, 24, 0.2);
+        }
+        
         @media (max-width: 480px) {
           .mv-categories-section {
             padding-left: 15px;
@@ -455,9 +514,12 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
       `}} />
 
       {/* HERO & CATEGORIES WRAPPER FOR BACKGROUND */}
-      <div className="mv-hero-bg-wrapper">
+      <div className="mv-hero-bg-wrapper" style={{ position: 'relative' }}>
+
+        <CustomerFormModal lang={lang} />
+
         {/* 0. HERO BRANDING */}
-        <section className="mv-hero-branding">
+        <section className="mv-hero-branding" style={{ paddingTop: '6rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{
             width: '72px',
             height: '72px',
@@ -493,7 +555,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
             maxWidth: '400px',
             margin: 0
           }}>
-            {lang === 'mr' ? 'आपले घर, आपले स्वप्न' : 'Your home, your dream'}
+            {lang === 'mr' ? 'लातूर जिल्हा प्रॉपर्टी खरेदी-विक्री' : 'Latur District Property Buying & Selling'}
           </p>
         </section>
 
@@ -518,19 +580,21 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
           initialQuery={query}
           initialType={typeFilter}
         />
+        
+        {/* Quick Location Links */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px', maxWidth: '800px', margin: '20px auto 0 auto' }}>
+          {['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'].map(loc => (
+            <Link key={loc} href={`/properties?location=${encodeURIComponent(loc)}`} className="mv-quick-location">
+              <MapPin size={14} style={{ marginRight: '6px' }} />
+              {loc}
+            </Link>
+          ))}
+        </div>
       </section>
 
-      {/* 3. LATEST PROPERTY UPLOADS (POP-UP CAROUSEL) */}
-      <section style={{ background: 'transparent', padding: 'var(--mv-space-2xl) 0' }}>
-        <PremiumPropertyCarousel
-          properties={safeProperties.slice(0, 4) as any}
-          isLocked={isLocked}
-          lang={lang}
-          title="Latest Property uploads"
-          viewAllText={t('home.viewAll', lang)}
-          viewAllLink="/properties"
-        />
-      </section>
+      {/* Urgent + Rent Property Information Box */}
+      <UrgentPropertiesBox urgentProperties={urgentProperties} />
+
 
       {/* Featured Ad Banner */}
       {ad && (
@@ -624,6 +688,64 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
         </div>
       </section>
 
+      {/* CITIES OF LATUR DISTRICT */}
+      <section className="mv-container mv-section">
+        <div className="mv-section-header" style={{ justifyContent: 'center', textAlign: 'center' }}>
+          <div>
+            <div className="mv-section-label">{lang === 'mr' ? 'लातूर जिल्ह्यातील सर्व शहरे' : 'Cities of Latur District'}</div>
+            <h2 className="mv-heading-lg" style={{ color: 'var(--mv-text)' }}>
+              {lang === 'mr' ? 'तुमच्या शहरातील मालमत्ता शोधा' : 'Find Properties in Your City'}
+            </h2>
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .mv-city-card {
+              background: linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.95));
+              border: 1px solid rgba(255,255,255,0.05);
+              border-radius: 12px;
+              padding: 20px 16px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-decoration: none;
+              transition: all 0.3s ease;
+              position: relative;
+              overflow: hidden;
+            }
+            .mv-city-card:hover {
+              transform: translateY(-4px);
+              border-color: rgba(245, 197, 24, 0.3);
+              box-shadow: 0 8px 24px rgba(245, 197, 24, 0.15);
+            }
+          `
+        }} />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: '16px',
+          paddingTop: '16px',
+        }}>
+          {LATUR_CITIES.map(city => (
+            <Link key={city.slug} href={`/properties/latur/${city.slug}`} className="mv-city-card">
+              <MapPin size={24} style={{ color: 'var(--mv-accent)', marginBottom: '12px' }} />
+              <h3 style={{ 
+                fontFamily: 'Outfit, sans-serif', 
+                color: 'var(--mv-text)', 
+                fontSize: '1rem', 
+                fontWeight: 600, 
+                margin: 0,
+                textAlign: 'center'
+              }}>
+                {lang === 'mr' ? city.marathiName : city.name}
+              </h3>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* 5. CTA BANNER */}
       <section className="mv-section" style={{ paddingTop: 0 }}>
         <div className="mv-container">
@@ -648,105 +770,9 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
         </div>
       </section>
 
-      {/* 6. BLOG & ARTICLES */}
-      <section className="mv-container mv-section" style={{ paddingTop: 0 }}>
-        <div className="mv-section-header">
-          <div>
-            <div className="mv-section-label">Read Our</div>
-            <h2 className="mv-heading-lg" style={{ color: 'var(--mv-text)' }}>
-              {t('home.blogTitle', lang)}
-            </h2>
-          </div>
-          <Link href="#" className="mv-btn mv-btn-secondary">
-            {t('home.viewAll', lang)}
-          </Link>
-        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--mv-space-xl)' }}>
-          {staticArticles.map((article) => {
-            return (
-              <Link href={`/blog/${article.slug}`} key={article.slug} className="mv-card mv-blog-card">
-                <div className="mv-blog-image-box">
-                  <img src={article.image} alt={t(`blog.${article.slug}.title`, lang)} />
-                </div>
-                <div style={{ padding: 'var(--mv-space-lg)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ color: 'var(--mv-accent)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>{article.date}</div>
-                  <h3 className="mv-heading-sm line-clamp-2" style={{ color: 'var(--mv-text)', marginBottom: '0.5rem' }}>
-                    {t(`blog.${article.slug}.title`, lang)}
-                  </h3>
-                  <p className="mv-body-sm line-clamp-2" style={{ color: 'var(--mv-text-secondary)', margin: 0 }}>
-                    {t(`blog.${article.slug}.excerpt`, lang)}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* LATUR DISTRICT CITIES — SEO SECTION */}
-      <section className="mv-container" style={{ paddingBottom: 'var(--mv-space-4xl)', paddingTop: 0 }}>
-        <style dangerouslySetInnerHTML={{
-          __html: `
-          .latur-city-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-          }
-          @media (min-width: 640px) { .latur-city-grid { grid-template-columns: repeat(3, 1fr); } }
-          @media (min-width: 1024px) { .latur-city-grid { grid-template-columns: repeat(5, 1fr); } }
-          .latur-city-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            padding: 16px 12px;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 14px;
-            background: rgba(255,255,255,0.02);
-            text-decoration: none;
-            color: var(--mv-text);
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: center;
-            transition: all 0.25s ease;
-          }
-          .latur-city-link:hover {
-            border-color: rgba(245,197,24,0.35);
-            background: rgba(245,197,24,0.05);
-            color: var(--mv-accent);
-            transform: translateY(-2px);
-          }
-          .latur-city-link .city-subtext {
-            font-size: 0.7rem;
-            color: var(--mv-text-muted);
-            font-weight: 400;
-          }
-        `}} />
-        <div className="mv-section-header">
-          <div>
-            <div className="mv-section-label">{lang === 'mr' ? 'लातूर जिल्हा' : 'Latur District'}</div>
-            <h2 className="mv-heading-lg" style={{ color: 'var(--mv-text)' }}>
-              {lang === 'mr' ? 'लातूर जिल्ह्यातील सर्व शहरे' : 'Property in Every City of Latur District'}
-            </h2>
-          </div>
-        </div>
-        <div className="latur-city-grid">
-          {LATUR_CITIES.map((city) => (
-            <Link
-              key={city.slug}
-              href={`/properties/latur/${city.slug}`}
-              className="latur-city-link"
-            >
-              <MapPin size={18} color="var(--mv-accent)" />
-              <span>{lang === 'mr' ? city.marathiName : city.name}</span>
-              <span className="city-subtext">
-                {lang === 'mr' ? 'मालमत्ता पहा' : 'View Property'}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+
 
     </div>
   );

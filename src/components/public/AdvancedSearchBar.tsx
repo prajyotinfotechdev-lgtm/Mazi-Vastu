@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronDown, MapPin } from 'lucide-react';
 import CustomCategorySelect from '@/components/public/CustomCategorySelect';
 import { t } from '@/lib/i18n/translate';
 import { useLoader } from '@/components/providers/LoaderProvider';
@@ -42,9 +42,21 @@ export default function AdvancedSearchBar({
   const [location, setLocation] = useState(initialLocation);
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
+  const [activeDropdown, setActiveDropdown] = useState<'location' | 'budget' | null>(null);
+  const searchBarRef = React.useRef<HTMLDivElement>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [focusedInput, setFocusedInput] = useState<'min' | 'max' | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchBarRef.current && !searchBarRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -141,7 +153,7 @@ export default function AdvancedSearchBar({
         .mv-properties-filter-input,
         .mv-properties-filter-select {
           width: 100%;
-          padding: 6px 4px 6px 20px;
+          padding: 6px 4px 6px 12px;
           background: transparent !important;
           border: none !important;
           color: var(--mv-text);
@@ -152,7 +164,7 @@ export default function AdvancedSearchBar({
         @media (min-width: 768px) {
           .mv-properties-filter-input,
           .mv-properties-filter-select {
-             padding: 8px 14px 8px 32px;
+             padding: 8px 14px 8px 16px;
              font-size: 0.9375rem;
           }
         }
@@ -249,44 +261,157 @@ export default function AdvancedSearchBar({
           border: 2px solid #000;
           box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
+        @media (max-width: 767px) {
+          .mv-custom-loc-dropdown {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: calc(100vw - 40px) !important;
+            max-width: 320px !important;
+            box-sizing: border-box !important;
+            z-index: 1000 !important;
+          }
+          .mv-custom-budget-dropdown {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: calc(100vw - 40px) !important;
+            max-width: 360px !important;
+            box-sizing: border-box !important;
+            z-index: 1000 !important;
+          }
+          .mv-mobile-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+          }
+          .mv-properties-filter-form {
+            flex-direction: row;
+            overflow-x: auto;
+            padding: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .mv-properties-filter-form::-webkit-scrollbar {
+            display: none;
+          }
+          .mv-divider {
+            display: block;
+          }
+          .mv-properties-filter-btn {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            margin-left: 0 !important;
+            margin-top: 0;
+            padding: 0 !important;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .mv-search-text {
+            display: none;
+          }
+          .mv-search-icon {
+            margin-right: 0 !important;
+          }
+          .mv-properties-filter-input-wrapper {
+            flex: 1 1 0 !important;
+            min-width: 70px;
+          }
+          .mv-dropdown-trigger {
+            padding: 6px 8px !important;
+            font-size: 0.75rem !important;
+          }
+        }
       `}</style>
       
-      <div className="mv-properties-filter-container">
+      {activeDropdown && <div className="mv-mobile-overlay" onClick={() => setActiveDropdown(null)}></div>}
+      
+      <div className="mv-properties-filter-container" ref={searchBarRef}>
         <form onSubmit={handleSearch} className="mv-properties-filter-form">
-          <div className="mv-properties-filter-input-wrapper">
-            <Search className="mv-filter-icon" color="var(--mv-text-muted)" />
-            <input 
-              type="text" 
-              name="q" 
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={lang === 'mr' ? 'कुठे शोधायचे?' : 'Where to?'}
-              className="mv-properties-filter-input"
+          <div className="mv-properties-filter-input-wrapper" style={{ flex: 1.2 }}>
+            <CustomCategorySelect 
+              categories={propertyTypes as any} 
+              defaultValue={typeFilter} 
+              allText={t('properties.allCategories', lang as any) || "Property Type"} 
+              lang={lang} 
             />
           </div>
           
           <div className="mv-divider"></div>
+
+          <div className="mv-properties-filter-input-wrapper" style={{ flex: 1 }}>
+            <div 
+              onClick={() => setActiveDropdown(activeDropdown === 'location' ? null : 'location')}
+              className="mv-dropdown-trigger"
+              style={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%', color: location ? '#000' : 'var(--mv-text)', fontWeight: location ? 600 : 400, background: location ? 'var(--mv-accent)' : 'transparent', borderRadius: '8px', transition: 'all 0.2s', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{location || (lang === 'mr' ? 'सर्व ठिकाणे' : 'Location')}</span>
+              <ChevronDown size={16} style={{ flexShrink: 0, marginLeft: '4px' }} />
+            </div>
+            {activeDropdown === 'location' && (
+              <div className="mv-custom-loc-dropdown" style={{ position: 'absolute', top: 'calc(100% + 16px)', left: '-10px', width: '240px', background: 'var(--mv-bg-elevated)', borderRadius: '16px', border: '1px solid var(--mv-border)', padding: '8px', zIndex: 100, boxShadow: '0 12px 32px rgba(0,0,0,0.6)', animation: 'slideUp 0.2s ease-out' }}>
+                <style>{`
+                  @keyframes slideUp { from { opacity: 0; transform: translateY(10px) translateX(var(--tx, 0)); } to { opacity: 1; transform: translateY(0) translateX(var(--tx, 0)); } }
+                  @media (max-width: 767px) { @keyframes slideUp { from { opacity: 0; transform: translate(-50%, -40%); } to { opacity: 1; transform: translate(-50%, -50%); } } }
+                  .mv-custom-loc-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: var(--mv-text); display: flex; align-items: center; font-size: 0.9375rem; }
+                  .mv-custom-loc-item:hover { background: rgba(245, 197, 24, 0.1); color: var(--mv-accent); }
+                  .mv-custom-loc-item.active { background: var(--mv-accent); color: #000; font-weight: 600; }
+                `}</style>
+                <div className={`mv-custom-loc-item ${!location ? 'active' : ''}`} onClick={() => { setLocation(''); setActiveDropdown(null); }}>
+                  {lang === 'mr' ? 'सर्व ठिकाणे' : 'All Locations'}
+                </div>
+                {['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'].map(loc => (
+                  <div key={loc} className={`mv-custom-loc-item ${location === loc ? 'active' : ''}`} onClick={() => { setLocation(loc); setActiveDropdown(null); }}>
+                    <MapPin size={16} style={{ marginRight: '8px' }} /> {loc}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           
-          <div className="mv-properties-filter-input-wrapper">
-            <CustomCategorySelect 
-              categories={propertyTypes as any} 
-              defaultValue={typeFilter} 
-              allText={t('properties.allCategories', lang as any) || "All Categories"} 
-              lang={lang} 
-            />
+          <div className="mv-divider"></div>
+          
+          <div className="mv-properties-filter-input-wrapper" style={{ flex: 1.2 }}>
+            <div 
+              onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
+              className="mv-dropdown-trigger"
+              style={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%', color: (minPrice || maxPrice) ? '#000' : 'var(--mv-text)', fontWeight: (minPrice || maxPrice) ? 600 : 400, background: (minPrice || maxPrice) ? 'var(--mv-accent)' : 'transparent', borderRadius: '8px', transition: 'all 0.2s', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{(minPrice || maxPrice) ? `${formatBudget(minPrice || '0')} - ${formatBudget(maxPrice || '100000000')}` : (lang === 'mr' ? 'कोणतेही बजेट' : 'Budget')}</span>
+              <ChevronDown size={16} style={{ flexShrink: 0, marginLeft: '4px' }} />
+            </div>
+            {activeDropdown === 'budget' && (
+              <div className="mv-custom-budget-dropdown" style={{ position: 'absolute', top: 'calc(100% + 16px)', left: '-40px', width: '320px', background: 'var(--mv-bg-elevated)', borderRadius: '20px', border: '1px solid var(--mv-border)', padding: '24px 20px', zIndex: 100, boxShadow: '0 16px 40px rgba(0,0,0,0.7)', animation: 'slideUp 0.2s ease-out' }}>
+                <div style={{ marginBottom: '24px', fontSize: '1rem', fontWeight: 700, color: 'var(--mv-text)', textAlign: 'center' }}>
+                  {lang === 'mr' ? 'तुमचे बजेट सेट करा' : 'Set Your Budget'}
+                </div>
+                <div style={{ position: 'relative', height: '24px', marginBottom: '24px', padding: '0 10px' }}>
+                  <div style={{ position: 'absolute', left: '10px', right: '10px', height: '6px', background: 'var(--mv-border)', top: '9px', borderRadius: '4px' }}></div>
+                  <div style={{ position: 'absolute', height: '6px', background: 'var(--mv-accent)', top: '9px', borderRadius: '4px', left: `calc(10px + ${(Number(minPrice) || 0) / 100000000 * 100}% - ${(Number(minPrice) || 0) / 100000000 * 20}px)`, right: `calc(10px + ${100 - ((Number(maxPrice) || 100000000) / 100000000 * 100)}% - ${(100 - ((Number(maxPrice) || 100000000) / 100000000 * 100)) / 100 * 20}px)` }}></div>
+                  <input type="range" min={0} max={100000000} step={500000} value={minPrice || 0} onChange={(e) => { const val = parseInt(e.target.value); if (!maxPrice || val <= parseInt(maxPrice)) setMinPrice(val.toString()); }} style={{ position: 'absolute', width: 'calc(100% - 20px)', left: '10px', top: '2px', WebkitAppearance: 'none', background: 'transparent', pointerEvents: 'none' }} className="dual-slider" />
+                  <input type="range" min={0} max={100000000} step={500000} value={maxPrice || 100000000} onChange={(e) => { const val = parseInt(e.target.value); if (!minPrice || val >= parseInt(minPrice)) setMaxPrice(val.toString()); }} style={{ position: 'absolute', width: 'calc(100% - 20px)', left: '10px', top: '2px', WebkitAppearance: 'none', background: 'transparent', pointerEvents: 'none' }} className="dual-slider" />
+                </div>
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+                  <div style={{ flex: 1, padding: '12px', background: 'rgba(0,0,0,0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--mv-text)' }}>{formatBudget(minPrice || '0')}</div>
+                  <div style={{ flex: 1, padding: '12px', background: 'rgba(0,0,0,0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--mv-text)' }}>{formatBudget(maxPrice || '100000000')}</div>
+                </div>
+                <button type="button" onClick={() => setActiveDropdown(null)} style={{ marginTop: '24px', width: '100%', padding: '12px', background: 'var(--mv-accent)', color: '#000', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                  {lang === 'mr' ? 'ओके' : 'Done'}
+                </button>
+              </div>
+            )}
           </div>
 
-          <button 
-            type="button" 
-            className="mv-filter-icon-btn" 
-            onClick={() => setIsFilterModalOpen(true)}
-            title="Advanced Filters"
-          >
-            <SlidersHorizontal size={18} />
-          </button>
-
-          <button type="submit" className="mv-btn mv-btn-primary mv-properties-filter-btn">
-            {t('properties.searchButton', lang as any)}
+          <button type="submit" className="mv-btn mv-btn-primary mv-properties-filter-btn" style={{ marginLeft: '4px' }}>
+            <Search size={18} style={{ marginRight: '6px' }} className="mv-search-icon" />
+            <span className="mv-search-text">{t('properties.searchButton', lang as any)}</span>
           </button>
         </form>
       </div>

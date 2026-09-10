@@ -98,6 +98,22 @@ export default async function PublicServicesPage() {
       {/* Hero Header Banner */}
       <div className="mv-inner-header-bg">
         <div className="mv-container" style={{ textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-block',
+            padding: '6px 16px',
+            background: 'rgba(245,197,24,0.1)',
+            color: '#f5c518',
+            borderRadius: '30px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            marginBottom: '1rem',
+            border: '1px solid rgba(245,197,24,0.2)',
+            animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
+          }}>
+            Real Estate Services Expert
+          </div>
           <h1 className="hero-title">
             {t('services.title', lang)}
           </h1>

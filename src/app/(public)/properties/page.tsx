@@ -68,7 +68,7 @@ export default async function PropertiesSearchPage({
   }
 
   if (location) {
-    whereFilter.approximateLocation = { equals: location, mode: 'insensitive' };
+    whereFilter.approximateLocation = { contains: location, mode: 'insensitive' };
   }
   
   if (minPrice || maxPrice) {
@@ -98,15 +98,9 @@ export default async function PropertiesSearchPage({
 
   const cookieStore = cookies();
   const visitorCookie = cookieStore.get('visitor_info');
-  const isLocked = !visitorCookie;
+  const isLocked = false;
 
-  const safeProperties = properties.map(p => ({
-    ...p,
-    price: isLocked ? 0 : p.price,
-    priceType: isLocked ? 'HIDDEN' : p.priceType,
-    approximateLocation: isLocked ? 'Location hidden' : p.approximateLocation,
-    size: isLocked ? 0 : p.size,
-  }));
+  const safeProperties = properties;
 
   return (
     <div style={{ background: 'var(--mv-bg)', minHeight: '100vh', paddingBottom: 'var(--mv-space-4xl)' }}>

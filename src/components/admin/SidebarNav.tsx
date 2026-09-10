@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, Building2, Users, UserPlus, Settings, Megaphone, Briefcase } from 'lucide-react';
+import { Home, LayoutDashboard, Building2, Users, UserPlus, Settings, Megaphone, Briefcase, Flame } from 'lucide-react';
 import styles from '@/app/admin/admin-layout.module.css';
 
 const navLinks = [
   { name: 'Overview', href: '/admin', icon: Home },
   { name: 'Properties', href: '/admin/properties', icon: Building2 },
+  { name: 'Urgent Properties', href: '/admin/urgent-properties', icon: Flame },
   { name: 'Property Types', href: '/admin/property-types', icon: LayoutDashboard },
   { name: 'Advertisements', href: '/admin/advertisements', icon: Megaphone },
   { name: 'Services', href: '/admin/services', icon: Briefcase },

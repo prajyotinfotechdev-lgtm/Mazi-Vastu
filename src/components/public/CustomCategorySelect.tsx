@@ -23,7 +23,9 @@ const marathiCategoryMap: Record<string, string> = {
   'Flat': 'फ्लॅट',
   'Shop': 'दुकान',
   'Land': 'जमीन',
-  'Rent': 'भाड्याने'
+  'Rent': 'भाड्याने',
+  'Bungalow': 'बंगला',
+  'Godown': 'गोदाम'
 };
 
 export default function CustomCategorySelect({ categories, defaultValue, allText, lang = 'en' }: CustomCategorySelectProps) {
@@ -69,7 +71,7 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
 
       {/* The visible trigger button */}
       <div 
-        className="mv-properties-filter-select"
+        className="mv-properties-filter-select mv-dropdown-trigger"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -101,11 +103,34 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
 
       {/* The dropdown menu */}
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 8px)',
-          left: 0,
-          right: 0,
+        <>
+          <style>{`
+            @media (max-width: 767px) {
+              .mv-custom-category-dropdown {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: calc(100vw - 40px) !important;
+                max-width: 320px !important;
+                box-sizing: border-box !important;
+                z-index: 1000 !important;
+              }
+              .mv-mobile-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(4px);
+                z-index: 999;
+              }
+            }
+          `}</style>
+          <div className="mv-mobile-overlay" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
+          <div className="mv-custom-category-dropdown" style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            left: 0,
+            right: 0,
           background: 'rgba(26, 26, 26, 0.95)',
           backdropFilter: 'blur(12px)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -210,6 +235,7 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
             );
           })}
         </div>
+        </>
       )}
     </div>
   );

@@ -28,7 +28,8 @@ export const createServiceSchema = z.object({
   providerContacts: z.array(
     z.object({
       name: z.string().min(1, 'Name is required'),
-      number: z.string().min(1, 'Number is required')
+      number: z.string().min(1, 'Number is required'),
+      photoUrl: z.string().url().optional().nullable(),
     })
   ).optional().default([]),
   isActive: z.boolean().default(true),

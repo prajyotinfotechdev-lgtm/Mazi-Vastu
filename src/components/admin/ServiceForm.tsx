@@ -29,7 +29,7 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
     whatsappMessageTemplate: initialData?.whatsappMessageTemplate || 'Hello, I would like to avail the {serviceName} service (Listed Price: {price}). My name is {userName}.',
   });
   
-  const [providerContacts, setProviderContacts] = useState<{name: string, number: string}[]>(() => {
+  const [providerContacts, setProviderContacts] = useState<{name: string, number: string, photoUrl?: string}[]>(() => {
     if (!initialData?.providerContacts) return [];
     try {
       return typeof initialData.providerContacts === 'string' 
@@ -50,7 +50,7 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleContactChange = (index: number, field: 'name' | 'number', value: string) => {
+  const handleContactChange = (index: number, field: 'name' | 'number' | 'photoUrl', value: string) => {
     setProviderContacts(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -431,26 +431,58 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {providerContacts.map((contact, idx) => (
-              <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ flex: 1 }}>
-                  <label className="premium-label">Provider Name</label>
-                  <input
-                    type="text"
-                    value={contact.name}
-                    onChange={e => handleContactChange(idx, 'name', e.target.value)}
-                    className="premium-input"
-                    placeholder="e.g. Ramesh Plumbing Co."
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label className="premium-label">Provider Number</label>
-                  <input
-                    type="text"
-                    value={contact.number}
-                    onChange={e => handleContactChange(idx, 'number', e.target.value)}
-                    className="premium-input"
-                    placeholder="e.g. 9876543210"
-                  />
+              <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="premium-label">Provider Name</label>
+                      <input
+                        type="text"
+                        value={contact.name}
+                        onChange={e => handleContactChange(idx, 'name', e.target.value)}
+                        className="premium-input"
+                        placeholder="e.g. Ramesh Plumbing Co."
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="premium-label">Provider Number</label>
+                      <input
+                        type="text"
+                        value={contact.number}
+                        onChange={e => handleContactChange(idx, 'number', e.target.value)}
+                        className="premium-input"
+                        placeholder="e.g. 9876543210"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="premium-label">Provider Photo (Optional)</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <MediaUploader
+                          onMediaUploaded={(newMedia) => {
+                            if (newMedia.length > 0) {
+                              handleContactChange(idx, 'photoUrl', newMedia[0].publicUrl);
+                            } else {
+                              handleContactChange(idx, 'photoUrl', '');
+                            }
+                          }}
+                        />
+                      </div>
+                      {contact.photoUrl && (
+                        <div style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: '2px solid rgba(245, 197, 24, 0.3)',
+                          flexShrink: 0
+                        }}>
+                          <img src={contact.photoUrl} alt="Provider" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <button type="button" onClick={() => handleRemoveContact(idx)} style={{
                   background: 'rgba(239, 68, 68, 0.1)',
@@ -463,7 +495,7 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  marginTop: '1.5rem',
+                  marginTop: '1.75rem',
                   transition: 'all 0.2s',
                   flexShrink: 0
                 }} title="Remove Contact">

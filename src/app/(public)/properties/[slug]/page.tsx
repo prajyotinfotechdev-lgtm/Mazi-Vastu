@@ -52,7 +52,7 @@ export default async function PropertyDetailPage({ params }: { params: { slug: s
   const cookieStore = cookies();
   const visitorCookie = cookieStore.get('visitor_info');
   const visitorInfo = visitorCookie ? JSON.parse(visitorCookie.value) : null;
-  const isLocked = !visitorInfo;
+  const isLocked = false;
 
   return (
     <div style={{ background: 'var(--mv-bg)', minHeight: '100vh', padding: 'var(--mv-space-3xl) 0' }}>
