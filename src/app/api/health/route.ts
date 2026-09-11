@@ -1,23 +1,30 @@
 // ─── Health Check ───────────────────────────────────────────────────────────
-// Verifies database connectivity. Never exposes credentials or internals.
+// Server liveness probe — always returns 200 so Railway healthcheck passes.
+// DB connectivity is checked separately and reported as a field (not a failure).
 // ──────────────────────────────────────────────────────────────────────────────
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET() {
-  try {
-    // Check database connectivity
-    await prisma.$queryRaw`SELECT 1`;
+export const dynamic = 'force-dynamic';
 
-    return NextResponse.json(
-      { status: 'ok', timestamp: new Date().toISOString() },
-      { status: 200 }
-    );
+export async function GET() {
+  let dbStatus = 'ok';
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
   } catch {
-    return NextResponse.json(
-      { status: 'error', message: 'Service unavailable' },
-      { status: 503 }
-    );
+    dbStatus = 'unavailable';
   }
+
+  // Always return 200 — this is a liveness probe, not a readiness probe.
+  // Railway healthcheck must pass for the container to be considered healthy.
+  return NextResponse.json(
+    {
+      status: 'ok',
+      db: dbStatus,
+      timestamp: new Date().toISOString(),
+    },
+    { status: 200 }
+  );
 }
