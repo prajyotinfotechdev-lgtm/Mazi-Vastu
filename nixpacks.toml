@@ -1,8 +1,17 @@
 [phases.setup]
+# Use nodejs_22 — nixpacks will pick the latest patch (>=22.12.0) satisfying sanitize-html
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["npm install --ignore-scripts"]
+# 1) Install all deps (scripts suppressed to avoid running prisma generate twice)
+# 2) Run prisma generate explicitly so the Prisma Client is ready for the build
+cmds = [
+  "npm install --ignore-scripts",
+  "npx prisma generate"
+]
 
 [phases.build]
 cmds = ["npm run build"]
+
+[start]
+cmd = "npm run start"
