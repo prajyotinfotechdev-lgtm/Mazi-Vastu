@@ -3,8 +3,6 @@ buildCommand = "npm install --ignore-scripts && npx prisma generate && npm run b
 
 [deploy]
 preDeployCommand = "npx prisma migrate deploy"
-startCommand = "sh -c 'cp -r .next/static .next/standalone/.next/static 2>/dev/null || true; cp -r public .next/standalone/public 2>/dev/null || true; node .next/standalone/server.js'"
-healthcheckPath = "/api/health"
-healthcheckTimeout = 120
+startCommand = "NODE_ENV=production npm run start"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3

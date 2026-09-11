@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Standalone output for Railway/Docker — self-contained server bundle
-  output: 'standalone',
-
   // Ignore linting and type errors during build to prevent deployment failures
   eslint: {
     ignoreDuringBuilds: true,
