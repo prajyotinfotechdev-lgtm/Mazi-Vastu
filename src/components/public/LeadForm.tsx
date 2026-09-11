@@ -17,7 +17,9 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
     name: visitorInfo?.name || '', 
     phone: visitorInfo?.phone || '', 
     email: visitorInfo?.email || '', 
-    message: '' 
+    message: '',
+    propertyType: '',
+    location: ''
   });
   const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
 
@@ -36,7 +38,7 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
       
       setStatus('SUCCESS');
       if (!visitorInfo) {
-        setFormData({ name: '', phone: '', email: '', message: '' });
+        setFormData({ name: '', phone: '', email: '', message: '', propertyType: '', location: '' });
       } else {
         setFormData(p => ({ ...p, message: '' }));
       }
@@ -97,6 +99,35 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
       <div>
         <label className="mv-label-text">{t('form.lead.phoneLabel', lang)} <span style={{ color: '#ef4444' }}>*</span></label>
         <input type="tel" required className="mv-input" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} />
+      </div>
+      <div>
+        <label className="mv-label-text">{lang === 'mr' ? 'मालमत्तेचा प्रकार' : 'Property Type'} <span style={{ color: '#ef4444' }}>*</span></label>
+        <select
+          required
+          className="mv-input"
+          value={formData.propertyType}
+          onChange={e => setFormData(p => ({ ...p, propertyType: e.target.value }))}
+          style={{ appearance: 'auto' }}
+        >
+          <option value="">{lang === 'mr' ? 'प्रकार निवडा' : 'Select type'}</option>
+          <option value="Residential Plot">{lang === 'mr' ? 'निवासी भूखंड' : 'Residential Plot'}</option>
+          <option value="Flat / Apartment">{lang === 'mr' ? 'फ्लॅट / अपार्टमेंट' : 'Flat / Apartment'}</option>
+          <option value="Independent House">{lang === 'mr' ? 'स्वतंत्र घर' : 'Independent House'}</option>
+          <option value="Commercial">{lang === 'mr' ? 'व्यावसायिक' : 'Commercial'}</option>
+          <option value="Agricultural Land">{lang === 'mr' ? 'शेतजमीन' : 'Agricultural Land'}</option>
+          <option value="Other">{lang === 'mr' ? 'इतर' : 'Other'}</option>
+        </select>
+      </div>
+      <div>
+        <label className="mv-label-text">{lang === 'mr' ? 'स्थान' : 'Location'} <span style={{ color: '#ef4444' }}>*</span></label>
+        <input
+          type="text"
+          required
+          className="mv-input"
+          value={formData.location}
+          onChange={e => setFormData(p => ({ ...p, location: e.target.value }))}
+          placeholder={lang === 'mr' ? 'उदा. पुणे, नाशिक' : 'e.g. Pune, Nashik'}
+        />
       </div>
       <div>
         <label className="mv-label-text">{lang === 'mr' ? 'बजेट (पर्यायी)' : 'Budget (Optional)'}</label>
