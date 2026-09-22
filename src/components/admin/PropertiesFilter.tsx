@@ -14,10 +14,10 @@ export default function PropertiesFilter({ propertyTypes, locations = [] }: { pr
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [status, setStatus] = useState(searchParams.get('status') || '');
-  const [propertyTypeId, setPropertyTypeId] = useState(searchParams.get('propertyTypeId') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
+  const [query, setQuery] = useState(searchParams?.get('q') || '');
+  const [status, setStatus] = useState(searchParams?.get('status') || '');
+  const [propertyTypeId, setPropertyTypeId] = useState(searchParams?.get('propertyTypeId') || '');
+  const [location, setLocation] = useState(searchParams?.get('location') || '');
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function PropertiesFilter({ propertyTypes, locations = [] }: { pr
   // Sync state to URL with debounce
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams((searchParams?.toString() || "")());
       
       if (query) params.set('q', query);
       else params.delete('q');
@@ -52,7 +52,7 @@ export default function PropertiesFilter({ propertyTypes, locations = [] }: { pr
       else params.delete('location');
 
       const newQueryString = params.toString();
-      const currentQueryString = searchParams.toString();
+      const currentQueryString = (searchParams?.toString() || "")();
       
       if (newQueryString !== currentQueryString) {
         params.set('page', '1');

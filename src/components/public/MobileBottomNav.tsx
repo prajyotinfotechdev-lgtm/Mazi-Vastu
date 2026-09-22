@@ -20,7 +20,7 @@ export default function MobileBottomNav({ lang = 'en' }: MobileBottomNavProps) {
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/' || pathname === '/mr';
-    return pathname.startsWith(href);
+    return pathname?.startsWith(href);
   };
 
   return (

@@ -8,8 +8,8 @@ export default function AdvertisementsFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const initialQuery = searchParams.get('q') || '';
-  const initialStatus = searchParams.get('status') || '';
+  const initialQuery = searchParams?.get('q') || '';
+  const initialStatus = searchParams?.get('status') || '';
 
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState(initialStatus);
@@ -17,7 +17,7 @@ export default function AdvertisementsFilter() {
   // Debounce search input
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams((searchParams?.toString() || "")());
       if (query) {
         params.set('q', query);
       } else {
@@ -32,7 +32,7 @@ export default function AdvertisementsFilter() {
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
     setStatus(newStatus);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams((searchParams?.toString() || "")());
     if (newStatus) {
       params.set('status', newStatus);
     } else {

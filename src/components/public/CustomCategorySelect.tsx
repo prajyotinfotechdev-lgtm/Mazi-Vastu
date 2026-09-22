@@ -131,11 +131,11 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
             top: 'calc(100% + 8px)',
             left: 0,
             right: 0,
-          background: 'rgba(26, 26, 26, 0.95)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'rgba(15, 15, 15, 0.98)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
           borderRadius: '16px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
           zIndex: 100,
           maxHeight: '300px',
           overflowY: 'auto',
@@ -148,17 +148,19 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
               to { opacity: 1; transform: translateY(0); }
             }
             .mv-custom-select-option {
-              padding: 10px 16px;
+              padding: 12px 16px;
               cursor: pointer;
               transition: all 0.2s ease;
               display: flex;
               align-items: center;
               justify-content: space-between;
-              color: var(--mv-text);
-              font-size: 0.875rem;
+              color: #ffffff;
+              font-size: 0.9375rem;
+              font-weight: 500;
             }
             .mv-custom-select-option:hover {
-              background: rgba(255, 255, 255, 0.05);
+              background: rgba(255, 255, 255, 0.12);
+              color: var(--mv-accent);
             }
             .mv-custom-select-group {
               padding: 12px 16px 4px 16px;

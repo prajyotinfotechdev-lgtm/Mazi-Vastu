@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useLoader } from '@/components/providers/LoaderProvider';
+import ImageCropper from './ImageCropper';
 
 export interface UploadedMedia {
   publicId: string;
@@ -16,11 +17,19 @@ interface MediaUploaderProps {
   onMediaUploaded: (media: UploadedMedia[]) => void;
 }
 
+interface UploadSession {
+  videos: File[];
+  imagesToCrop: { file: File; url: string }[];
+  croppedImages: File[];
+}
+
 export default function MediaUploader({ initialMedia = [], onMediaUploaded }: MediaUploaderProps) {
   const [uploads, setUploads] = useState<UploadedMedia[]>(initialMedia);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const [pendingUploadSession, setPendingUploadSession] = useState<UploadSession | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showLoader, hideLoader } = useLoader();
 
@@ -32,14 +41,13 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
     }
   }, [progress, uploading, showLoader, hideLoader]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    
+  const uploadFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+
     setUploading(true);
     setProgress(0);
     setError('');
 
-    const files = Array.from(e.target.files);
     const newUploads = [...uploads];
 
     try {
@@ -99,6 +107,74 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const files = Array.from(e.target.files);
+    const videos = files.filter(f => f.type.startsWith('video/'));
+    const images = files.filter(f => f.type.startsWith('image/'));
+
+    if (images.length === 0) {
+      uploadFiles(videos);
+    } else {
+      setPendingUploadSession({
+        videos,
+        imagesToCrop: images.map(f => ({ file: f, url: URL.createObjectURL(f) })),
+        croppedImages: []
+      });
+    }
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    if (!pendingUploadSession) return;
+
+    const newImagesToCrop = [...pendingUploadSession.imagesToCrop];
+    const finishedItem = newImagesToCrop.shift(); // remove first
+    if (finishedItem) {
+        URL.revokeObjectURL(finishedItem.url); // cleanup
+    }
+    
+    const newSession = {
+      ...pendingUploadSession,
+      imagesToCrop: newImagesToCrop,
+      croppedImages: [...pendingUploadSession.croppedImages, croppedFile]
+    };
+
+    if (newImagesToCrop.length === 0) {
+      setPendingUploadSession(null);
+      uploadFiles([...newSession.videos, ...newSession.croppedImages]);
+    } else {
+      setPendingUploadSession(newSession);
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (!pendingUploadSession) return;
+
+    const newImagesToCrop = [...pendingUploadSession.imagesToCrop];
+    const finishedItem = newImagesToCrop.shift(); // remove first
+    if (finishedItem) {
+        URL.revokeObjectURL(finishedItem.url); // cleanup
+    }
+    
+    const newSession = {
+      ...pendingUploadSession,
+      imagesToCrop: newImagesToCrop
+    };
+
+    if (newImagesToCrop.length === 0) {
+      setPendingUploadSession(null);
+      const toUpload = [...newSession.videos, ...newSession.croppedImages];
+      if (toUpload.length > 0) {
+        uploadFiles(toUpload);
+      } else if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      setPendingUploadSession(newSession);
+    }
+  };
+
   const handleRemove = (publicId: string) => {
     const updated = uploads.filter(u => u.publicId !== publicId);
     setUploads(updated);
@@ -108,6 +184,14 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       
+      {pendingUploadSession && pendingUploadSession.imagesToCrop.length > 0 && (
+        <ImageCropper
+          imageSrc={pendingUploadSession.imagesToCrop[0].url}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
+
       {error && (
         <div style={{ color: '#ef4444', fontSize: '0.875rem' }}>
           {error}
@@ -116,21 +200,23 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
 
       {/* Upload Dropzone */}
       <div 
-        onClick={() => !uploading && fileInputRef.current?.click()}
+        onClick={() => !uploading && !pendingUploadSession && fileInputRef.current?.click()}
         style={{
           border: '2px dashed #cbd5e1',
           borderRadius: '8px',
           padding: '2rem',
           textAlign: 'center',
-          cursor: uploading ? 'not-allowed' : 'pointer',
+          cursor: uploading || pendingUploadSession ? 'not-allowed' : 'pointer',
           background: '#f8fafc',
-          opacity: uploading ? 0.6 : 1,
+          opacity: uploading || pendingUploadSession ? 0.6 : 1,
           transition: 'all 0.2s',
         }}
       >
         <Upload size={32} color="#64748b" style={{ margin: '0 auto 1rem' }} />
         <p style={{ margin: 0, fontWeight: 500, color: '#334155' }}>
-          {uploading ? `Uploading... ${progress}%` : 'Click to select images/videos'}
+          {uploading ? `Uploading... ${progress}%` : 
+           pendingUploadSession ? 'Cropping in progress...' : 
+           'Click to select images/videos'}
         </p>
         
         {uploading && (
@@ -139,7 +225,7 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
           </div>
         )}
 
-        {!uploading && (
+        {!uploading && !pendingUploadSession && (
           <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
             PNG, JPG, WEBP, MP4 (max 10MB)
           </p>
@@ -151,7 +237,7 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
           ref={fileInputRef} 
           onChange={handleFileChange}
           style={{ display: 'none' }} 
-          disabled={uploading}
+          disabled={uploading || pendingUploadSession !== null}
         />
       </div>
 

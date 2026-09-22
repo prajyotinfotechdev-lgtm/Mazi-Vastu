@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from '@/components/ui/LoaderLink';
-import { Home, Map, Building, Building2, Store, Mountain, Key, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Home, Map, Building, Building2, Store, Mountain, Key, Info, MapPin, X } from 'lucide-react';
 
 const getCategoryIcon = (name: string, size: number = 28) => {
   const lower = name.toLowerCase();
@@ -36,124 +36,24 @@ const marathiCategoryMap: Record<string, string> = {
   'Godown': 'गोदाम'
 };
 
+const POPULAR_LOCATIONS = ['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'];
+
 export default function CategoryGrid({ propertyTypes, lang = 'mr' }: { propertyTypes: PropertyType[], lang?: string }) {
-  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
-
-  const toggleParent = (id: string) => {
-    setExpandedParents(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string, name: string } | null>(null);
   const parentCategories = propertyTypes.filter(type => type.parentId === null);
-  const getChildren = (parentId: string) => propertyTypes.filter(type => type.parentId === parentId);
 
   return (
-    <div className="mv-category-grid">
-      {parentCategories.map((parent) => {
-        const children = getChildren(parent.id);
-        const hasChildren = children.length > 0;
-        const isExpanded = expandedParents[parent.id];
-        const displayName = lang === 'mr' ? (marathiCategoryMap[parent.name] || parent.name) : parent.name;
+    <>
+      <div className="mv-category-grid">
+        {parentCategories.map((parent) => {
+          const displayName = lang === 'mr' ? (marathiCategoryMap[parent.name] || parent.name) : parent.name;
 
-        return (
-          <React.Fragment key={parent.id}>
-            {hasChildren ? (
+          return (
+            <React.Fragment key={parent.id}>
               <div
-                onClick={() => toggleParent(parent.id)}
+                onClick={() => setSelectedCategory({ id: parent.id, name: displayName })}
                 className="mv-category-card"
-                style={{
-                  position: 'relative',
-                  cursor: 'pointer',
-                  border: isExpanded ? '1px solid rgba(245, 197, 24, 0.5)' : undefined,
-                  zIndex: isExpanded ? 50 : 1
-                }}
-              >
-                <div className="mv-category-icon">
-                  {getCategoryIcon(parent.name)}
-                </div>
-                <span className="mv-category-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  {displayName} {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </span>
-
-                {isExpanded && (
-                  <div
-                    className="mv-subcategory-dropdown"
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      marginTop: '8px',
-                      display: 'flex',
-                      flexDirection: 'row',
-                      flexWrap: 'nowrap',
-                      justifyContent: 'flex-start',
-                      gap: '6px',
-                      zIndex: 50,
-                      width: 'max-content',
-                      maxWidth: 'calc(100vw - 30px)',
-                      overflowX: 'auto',
-                      paddingBottom: '8px', /* Extra space so the scrollbar doesn't clip the shadow */
-                      WebkitOverflowScrolling: 'touch',
-                      scrollbarWidth: 'none', /* Hide scrollbar Firefox */
-                      msOverflowStyle: 'none', /* Hide scrollbar IE/Edge */
-                    }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <style>{`
-                      .mv-subcategory-dropdown::-webkit-scrollbar {
-                        display: none;
-                      }
-                    `}</style>
-                    {children.map(child => {
-                      const childName = child.name.replace(/rent\s*-\s*/i, '').replace(/rent/i, '').trim();
-                      const childDisplayName = lang === 'mr' ? (marathiCategoryMap[childName] || childName) : childName;
-                      return (
-                      <Link
-                        key={child.id}
-                        href={`/properties?type=${child.id}`}
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          background: 'linear-gradient(135deg, var(--mv-accent, #f5c518), #d49a00)',
-                          border: '1px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '10px',
-                          padding: '6px 8px',
-                          color: '#000000',
-                          textDecoration: 'none',
-                          fontSize: '0.65rem',
-                          fontWeight: 700,
-                          whiteSpace: 'nowrap',
-                          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                          boxShadow: '0 6px 16px rgba(245, 197, 24, 0.15), inset 0 2px 2px rgba(255, 255, 255, 0.4)',
-                          minWidth: '50px'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
-                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #ffd700, #f5c518)';
-                          e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(245, 197, 24, 0.5), 0 0 15px rgba(245, 197, 24, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.6)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                          e.currentTarget.style.background = 'linear-gradient(135deg, var(--mv-accent, #f5c518), #d49a00)';
-                          e.currentTarget.style.boxShadow = '0 6px 16px rgba(245, 197, 24, 0.15), inset 0 2px 2px rgba(255, 255, 255, 0.4)';
-                        }}
-                      >
-                        <div style={{ color: '#000000' }}>
-                          {getCategoryIcon(child.name, 16)}
-                        </div>
-                        <span>{childDisplayName}</span>
-                      </Link>
-                    )})}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href={`/properties?type=${parent.id}`}
-                className="mv-category-card"
+                style={{ cursor: 'pointer' }}
               >
                 <div className="mv-category-icon">
                   {getCategoryIcon(parent.name)}
@@ -161,11 +61,118 @@ export default function CategoryGrid({ propertyTypes, lang = 'mr' }: { propertyT
                 <span className="mv-category-title">
                   {displayName}
                 </span>
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Location Selection Modal */}
+      {selectedCategory && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(4px)',
+          padding: '20px'
+        }} onClick={() => setSelectedCategory(null)}>
+          <div style={{
+            background: 'var(--mv-bg-elevated)',
+            border: '1px solid var(--mv-border)',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+            position: 'relative'
+          }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: 'var(--mv-text)',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={18} />
+            </button>
+            <h3 style={{ marginTop: 0, marginBottom: '8px', fontSize: '1.25rem', color: 'var(--mv-text)' }}>
+              {lang === 'mr' ? 'स्थान निवडा' : 'Select Location'}
+            </h3>
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.875rem', color: 'var(--mv-text-secondary)' }}>
+              {lang === 'mr' ? 'कोणत्या भागात तुम्ही मालमत्ता शोधत आहात?' : 'Which area are you looking in?'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {POPULAR_LOCATIONS.map(loc => (
+                <Link
+                  key={loc}
+                  href={`/properties?type=${selectedCategory.id}&location=${encodeURIComponent(loc)}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    color: 'var(--mv-text)',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(245, 197, 24, 0.1)';
+                    e.currentTarget.style.borderColor = 'var(--mv-accent)';
+                    e.currentTarget.style.color = 'var(--mv-accent)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.color = 'var(--mv-text)';
+                  }}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  <MapPin size={18} style={{ marginRight: '12px' }} />
+                  {loc}
+                </Link>
+              ))}
+              <Link
+                  href={`/properties?type=${selectedCategory.id}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '12px 16px',
+                    background: 'var(--mv-accent)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '12px',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    marginTop: '10px',
+                    transition: 'all 0.2s'
+                  }}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  {lang === 'mr' ? 'सर्व स्थाने पहा' : 'View All Locations'}
               </Link>
-            )}
-          </React.Fragment>
-        );
-      })}
-    </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -73,8 +73,9 @@ model Property {
   approximateLocation String?        // Public-facing location
   city                String?        // Exact city slug for Latur District cities
   gatedLocation       String?        // Visible only to registered visitors
-  size                Float?
+  size                String?
   sizeUnit            SizeUnit?
+  contactNumber       String?
   price               Float?
   priceType           PriceType?     @default(FIXED)
   metadata            Json?          @default("{}") @db.JsonB // Dynamic field values
@@ -513,6 +514,7 @@ model UrgentProperty {
   id        String   @id @default(cuid())
   title     String   @db.Text
   location  String
+  type      String   @default("URGENT") // "URGENT" or "RENT"
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

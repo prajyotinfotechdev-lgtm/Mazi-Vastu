@@ -12,7 +12,7 @@ interface Property {
   price: number;
   priceType: string;
   approximateLocation: string | null;
-  size: number | null;
+  size: string | null;
   sizeUnit: string | null;
   media: { publicUrl: string; mediaType: string; sortOrder: number }[];
   propertyType: { name: string };

@@ -105,6 +105,9 @@ export default async function UrgentPropertiesAdminPage() {
                     <MapPin size={13} />
                     {prop.location}
                   </span>
+                  <span className="location-badge" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.25)' }}>
+                    {prop.type === 'RENT' ? 'Rent' : 'Urgent'}
+                  </span>
                   <span style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                     <Calendar size={13} />
                     {new Date(prop.createdAt).toLocaleDateString('en-IN', {

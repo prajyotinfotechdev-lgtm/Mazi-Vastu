@@ -580,16 +580,6 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
           initialQuery={query}
           initialType={typeFilter}
         />
-        
-        {/* Quick Location Links */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px', maxWidth: '800px', margin: '20px auto 0 auto' }}>
-          {['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'].map(loc => (
-            <Link key={loc} href={`/properties?location=${encodeURIComponent(loc)}`} className="mv-quick-location">
-              <MapPin size={14} style={{ marginRight: '6px' }} />
-              {loc}
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* Urgent + Rent Property Information Box */}
@@ -605,46 +595,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
 
 
 
-      {/* PROPERTY LISTINGS */}
-      <section className="mv-container" style={{ paddingBottom: 'var(--mv-space-4xl)' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {safeSearchedProperties.length > 0 ? (
-            safeSearchedProperties.map((prop: any) => (
-              <PropertyCard key={prop.id} property={prop} isLocked={isLocked} lang={lang} variant="horizontal" />
-            ))
-          ) : (
-            <div style={{
-              textAlign: 'center',
-              padding: '4rem 2rem',
-              background: 'linear-gradient(145deg, rgba(20,20,20,0.6), rgba(10,10,10,0.6))',
-              borderRadius: '16px',
-              border: '1px solid rgba(255,255,255,0.05)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: 'rgba(245, 197, 24, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--mv-accent)'
-              }}>
-                <SearchIcon size={32} strokeWidth={1.5} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit, sans-serif', color: 'var(--mv-text)', margin: 0 }}>No Properties Found</h3>
-              <p style={{ color: 'var(--mv-text-secondary)', margin: 0, maxWidth: '300px' }}>
-                We couldn't find any exact matches. Try adjusting your search or filters to see more results.
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* 4. OUR SERVICES */}
       <section className="mv-container mv-section">

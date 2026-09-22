@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   try {
     await requireAdmin();
     const body = await request.json();
-    const { title, location } = body;
+    const { title, location, type } = body;
 
     if (!title || typeof title !== 'string' || !title.trim()) {
       return NextResponse.json({ error: 'Title / details are required' }, { status: 400 });
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: title.trim(),
         location: location.trim(),
+        type: type === 'RENT' ? 'RENT' : 'URGENT',
         isActive: true,
       },
     });

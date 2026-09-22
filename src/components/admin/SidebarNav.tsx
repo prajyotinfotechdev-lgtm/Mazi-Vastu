@@ -30,7 +30,7 @@ export default function SidebarNav() {
         // Dashboard is exact match, others are prefix match
         const isActive = link.href === '/admin' 
           ? pathname === '/admin' 
-          : pathname.startsWith(link.href);
+          : pathname?.startsWith(link.href);
 
         return (
           <Link 

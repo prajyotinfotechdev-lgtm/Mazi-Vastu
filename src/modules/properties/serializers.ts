@@ -28,12 +28,13 @@ export interface PublicPropertyDTO {
   seoTitle: string | null;
   seoDescription: string | null;
   publishedAt: string | null;
+  contactNumber: string | null;
   media: MediaDTO[];
 }
 
 export interface RegisteredPropertyDTO extends PublicPropertyDTO {
   gatedLocation: string | null;
-  size: number | null;
+  size: string | null;
   sizeUnit: string | null;
 }
 
@@ -86,6 +87,7 @@ export async function serializePublicProperty(
     seoTitle: property.seoTitle,
     seoDescription: property.seoDescription,
     publishedAt: property.publishedAt?.toISOString() || null,
+    contactNumber: property.contactNumber,
     media: serializeMedia(property.media),
   };
 }

@@ -161,15 +161,15 @@ export default async function AdminCustomersPage({
                       </span>
                     </td>
                     <td style={{ padding: '1rem', color: 'var(--mv-text-secondary)', fontSize: '0.875rem' }}>
-                      {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                     </td>
                     <td style={{ padding: '1rem', color: 'var(--mv-text-secondary)', fontSize: '0.875rem' }}>
                       {/* Since we grouped, we don't have first seen easily, but latest contact is createdAt of this latest lead */}
-                      {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       <Link 
-                        href={`/admin/customers/${encodeURIComponent(customer.phone)}`}
+                        href={`/admin/customers/${encodeURIComponent(customer.phone || '')}`}
                         className="mv-action-btn"
                         style={{ display: 'inline-flex', textDecoration: 'none' }}
                         title="View Customer Details"
@@ -187,7 +187,7 @@ export default async function AdminCustomersPage({
         {/* Pagination */}
         {totalPages > 1 && (
           <div style={{ padding: '1rem', borderTop: '1px solid var(--mv-border)', background: 'var(--mv-bg)' }}>
-            <Pagination currentPage={page} totalPages={totalPages} />
+            <Pagination totalPages={totalPages} />
           </div>
         )}
       </div>

@@ -10,7 +10,7 @@ interface PropertyCardProps {
     price: number;
     priceType: string;
     approximateLocation: string | null;
-    size: number | null;
+    size: string | null;
     sizeUnit: string | null;
     media: { publicUrl: string; mediaType: string }[];
     propertyType: { name: string };

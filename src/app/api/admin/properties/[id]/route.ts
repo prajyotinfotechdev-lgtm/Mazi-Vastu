@@ -41,12 +41,12 @@ export async function PUT(
 
     const oldProperty = await PropertyService.getById(params.id);
     const property = await PropertyService.update(params.id, input, admin.id);
-    const serialized = await serializeAdminProperty(property);
+    const serialized = await serializeAdminProperty(property as any);
 
     if (oldProperty.status !== 'PUBLISHED' && property.status === 'PUBLISHED') {
       sendPushNotificationToAll({
         title: '🚨 New Property Alert!',
-        body: `A new ${property.type} was just listed in ${property.city}. Click here to see it before anyone else!`,
+        body: `A new property was just listed in ${property.city}. Click here to see it before anyone else!`,
         url: `/properties/${property.slug || property.id}`
       }).catch(err => console.error("Push Error: ", err));
     }

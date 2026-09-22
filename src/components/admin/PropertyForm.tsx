@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Plus, Trash2, Info, Tag, MapPin, List, Image as ImageIcon, ArrowLeft } from 'lucide-react';
+import { Save, Plus, Trash2, Info, Tag, MapPin, List, Image as ImageIcon, ArrowLeft, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useLoader } from '@/components/providers/LoaderProvider';
 import MediaUploader, { UploadedMedia } from './MediaUploader';
@@ -47,6 +47,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
     priceType: initialData?.priceType || 'FIXED',
     size: initialData?.size?.toString() || '',
     sizeUnit: initialData?.sizeUnit || 'SQFT',
+    contactNumber: initialData?.contactNumber || '',
     approximateLocation: initialData?.approximateLocation || '',
     city: initialData?.city || '',
     gatedLocation: initialData?.gatedLocation || '',
@@ -108,10 +109,11 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
         description: formData.description,
         propertyTypeId: formData.propertyTypeId,
         status: formData.status,
-        price: parseFloat(formData.price),
+        price: parseFloat(formData.price) || 0,
         priceType: formData.priceType,
-        size: parseFloat(formData.size),
+        size: formData.size,
         sizeUnit: formData.sizeUnit,
+        contactNumber: formData.contactNumber,
         approximateLocation: formData.approximateLocation,
         city: formData.city,
         gatedLocation: formData.gatedLocation,
@@ -213,12 +215,27 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
           </div>
         )}
 
-        {/* 1. Basic Information */}
+        {/* 1. Media Upload */}
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           <SectionHeader 
-            title="Basic Information" 
-            description="Provide the core details of the property, such as its title, description, and primary category. Make the title catchy and descriptive."
-            icon={Info}
+            title="1. Photos & Videos" 
+            description="Upload high-quality media to attract more leads. The first image will be used as the thumbnail."
+            icon={ImageIcon}
+          />
+          <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <MediaUploader 
+              initialMedia={media}
+              onMediaUploaded={(uploadedMedia) => setMedia(uploadedMedia)} 
+            />
+          </div>
+        </div>
+
+        {/* 2. Core Details (Title, Size, Price, Contact) */}
+        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+          <SectionHeader 
+            title="2. Core Details" 
+            description="Provide the most important details that buyers look for first: Title, Size, Price, and Contact Number."
+            icon={Tag}
           />
           <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div>
@@ -236,77 +253,38 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
               />
             </div>
 
-            <div>
-              <label style={getLabelStyle()}>Description *</label>
-              <textarea
-                name="description"
-                required
-                rows={5}
-                value={formData.description}
-                onChange={handleChange}
-                onFocus={() => setFocusedField('description')}
-                onBlur={() => setFocusedField(null)}
-                style={{ ...getInputStyle('description'), resize: 'vertical' }}
-                placeholder="Highlight the key features, surrounding neighborhood, and overall appeal of the property..."
-              />
-            </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
-                <label style={getLabelStyle()}>Category / Type *</label>
-                <select
-                  name="propertyTypeId"
-                  required
-                  value={formData.propertyTypeId}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('propertyTypeId')}
-                  onBlur={() => setFocusedField(null)}
-                  style={getInputStyle('propertyTypeId')}
-                >
-                  <option value="">Select a category...</option>
-                  {rootTypes.map(root => (
-                    <optgroup key={root.id} label={root.name}>
-                      <option value={root.id}>— {root.name} (General)</option>
-                      {subTypes.filter(sub => sub.parentId === root.id).map(sub => (
-                        <option key={sub.id} value={sub.id}>{sub.name}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                  <optgroup label="Actions">
-                    <option value="ADD_NEW_TYPE">+ Add New Property Type...</option>
-                  </optgroup>
-                </select>
+                <label style={getLabelStyle()}>Size / Area *</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    name="size"
+                    required
+                    value={formData.size}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('size')}
+                    onBlur={() => setFocusedField(null)}
+                    style={{ ...getInputStyle('size'), flex: 2 }}
+                    placeholder="e.g. 20 * 50 or 1200"
+                  />
+                  <select
+                    name="sizeUnit"
+                    value={formData.sizeUnit}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('sizeUnit')}
+                    onBlur={() => setFocusedField(null)}
+                    style={{ ...getInputStyle('sizeUnit'), flex: 1, padding: '0.875rem 0.5rem' }}
+                  >
+                    <option value="SQFT">Sq.Ft</option>
+                    <option value="SQM">Sq.M</option>
+                    <option value="ACRE">Acre</option>
+                    <option value="HECTARE">Hectare</option>
+                    <option value="GUNTHA">Guntha</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label style={getLabelStyle()}>Status *</label>
-                <select
-                  name="status"
-                  required
-                  value={formData.status}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('status')}
-                  onBlur={() => setFocusedField(null)}
-                  style={getInputStyle('status')}
-                >
-                  <option value="DRAFT">Draft (Hidden)</option>
-                  <option value="PUBLISHED">Published (Visible)</option>
-                  <option value="SOLD">Sold / Rented</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Pricing & Dimensions */}
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <SectionHeader 
-            title="Pricing & Dimensions" 
-            description="Set the asking price and specify the property dimensions. You can choose whether the price is fixed, negotiable, or available on request."
-            icon={Tag}
-          />
-          <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
                 <label style={getLabelStyle()}>Price (₹) *</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -333,39 +311,26 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                     <option value="FIXED">Fixed</option>
                     <option value="NEGOTIABLE">Negotiable</option>
                     <option value="ON_REQUEST">On Request</option>
+                    <option value="PER_SQFT">Per Sq.Ft</option>
+                    <option value="PER_MONTH">Per Month</option>
                   </select>
                 </div>
               </div>
 
-              <div>
-                <label style={getLabelStyle()}>Size / Area *</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={getLabelStyle()}>Contact Number</label>
+                <div style={{ position: 'relative' }}>
+                  <Phone size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mv-text-muted)' }} />
                   <input
-                    type="number"
-                    name="size"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.size}
+                    type="text"
+                    name="contactNumber"
+                    value={formData.contactNumber}
                     onChange={handleChange}
-                    onFocus={() => setFocusedField('size')}
+                    onFocus={() => setFocusedField('contactNumber')}
                     onBlur={() => setFocusedField(null)}
-                    style={{ ...getInputStyle('size'), flex: 2 }}
-                    placeholder="e.g. 1200"
+                    style={{ ...getInputStyle('contactNumber'), paddingLeft: '2.5rem' }}
+                    placeholder="e.g. +91 9876543210 (Leave blank to use default admin number)"
                   />
-                  <select
-                    name="sizeUnit"
-                    value={formData.sizeUnit}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('sizeUnit')}
-                    onBlur={() => setFocusedField(null)}
-                    style={{ ...getInputStyle('sizeUnit'), flex: 1, padding: '0.875rem 0.5rem' }}
-                  >
-                    <option value="SQFT">Sq.Ft</option>
-                    <option value="SQM">Sq.M</option>
-                    <option value="ACRE">Acre</option>
-                    <option value="HECTARE">Hectare</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -375,7 +340,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
         {/* 3. Location */}
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           <SectionHeader 
-            title="Location Details" 
+            title="3. Location Details" 
             description="Provide a public-facing general location and an optional precise location visible only to registered users or admin."
             icon={MapPin}
           />
@@ -387,12 +352,13 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                 <input
                   type="text"
                   name="approximateLocation"
+                  required
                   autoComplete="off"
                   value={formData.approximateLocation}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('approximateLocation')}
                   onBlur={() => setTimeout(() => { if(focusedField === 'approximateLocation') setFocusedField(null) }, 200)}
-                  style={getInputStyle('approximateLocation')}
+                  style={{ ...getInputStyle('approximateLocation'), paddingLeft: '2.5rem' }}
                   placeholder="e.g. Ausa Road"
                 />
                 
@@ -467,6 +433,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
               <label style={getLabelStyle()}>City (Latur District) *</label>
               <select
                 name="city"
+                required
                 value={formData.city}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('city')}
@@ -478,7 +445,6 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                   <option key={city.slug} value={city.slug}>{city.name}</option>
                 ))}
               </select>
-              <p style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginTop: '0.5rem' }}>Select the city this property belongs to for correct SEO and filtering.</p>
             </div>
 
             <div>
@@ -501,18 +467,80 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
           </div>
         </div>
 
-        {/* 4. Dynamic Custom Fields */}
+        {/* 4. Description & Other Details */}
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           <SectionHeader 
-            title="Amenities & Features" 
-            description="Fill out specific details configured for your property types, such as facing, age, or furnishing status."
+            title="4. Description & Other Details" 
+            description="Provide a detailed description, select the property category, and set its status."
             icon={List}
           />
           <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <div>
+              <label style={getLabelStyle()}>Description *</label>
+              <textarea
+                name="description"
+                required
+                rows={5}
+                value={formData.description}
+                onChange={handleChange}
+                onFocus={() => setFocusedField('description')}
+                onBlur={() => setFocusedField(null)}
+                style={{ ...getInputStyle('description'), resize: 'vertical' }}
+                placeholder="Highlight the key features, surrounding neighborhood, and overall appeal of the property..."
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div>
+                <label style={getLabelStyle()}>Category / Type *</label>
+                <select
+                  name="propertyTypeId"
+                  required
+                  value={formData.propertyTypeId}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('propertyTypeId')}
+                  onBlur={() => setFocusedField(null)}
+                  style={getInputStyle('propertyTypeId')}
+                >
+                  <option value="">Select a category...</option>
+                  {rootTypes.map(root => (
+                    <optgroup key={root.id} label={root.name}>
+                      <option value={root.id}>— {root.name} (General)</option>
+                      {subTypes.filter(sub => sub.parentId === root.id).map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                  <optgroup label="Actions">
+                    <option value="ADD_NEW_TYPE">+ Add New Property Type...</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div>
+                <label style={getLabelStyle()}>Status *</label>
+                <select
+                  name="status"
+                  required
+                  value={formData.status}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('status')}
+                  onBlur={() => setFocusedField(null)}
+                  style={getInputStyle('status')}
+                >
+                  <option value="DRAFT">Draft (Hidden)</option>
+                  <option value="PUBLISHED">Published (Visible)</option>
+                  <option value="SOLD">Sold / Rented</option>
+                </select>
+              </div>
+            </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
+            <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', margin: '1rem 0' }} />
+
+            {/* Custom Fields within the same section */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--mv-text)', margin: 0 }}>
-                Additional Details
+                Amenities & Custom Fields
               </h3>
               <button
                 type="button"
@@ -521,7 +549,7 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                 onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(245, 197, 24, 0.2)')}
                 onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(245, 197, 24, 0.1)')}
               >
-                <Plus size={16} /> Add Custom Field
+                <Plus size={16} /> Add Field
               </button>
             </div>
 
@@ -653,21 +681,6 @@ export default function PropertyForm({ propertyTypes, customFields, initialData,
                 No custom amenities defined yet. Click "Add Custom Field" to create one.
               </div>
             )}
-          </div>
-        </div>
-
-        {/* 5. Media Upload */}
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <SectionHeader 
-            title="Photos & Videos" 
-            description="Upload high-quality media to attract more leads. First image will be used as the thumbnail."
-            icon={ImageIcon}
-          />
-          <div className="mv-card" style={{ flex: '2 1 500px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', background: 'var(--mv-bg-elevated)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <MediaUploader 
-              initialMedia={media}
-              onMediaUploaded={(uploadedMedia) => setMedia(uploadedMedia)} 
-            />
           </div>
         </div>
 

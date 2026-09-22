@@ -50,6 +50,7 @@ export default function UrgentPropertyForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState(LOCATIONS[0]);
+  const [type, setType] = useState('URGENT');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -70,6 +71,7 @@ export default function UrgentPropertyForm() {
         body: JSON.stringify({
           title: title.trim(),
           location,
+          type,
         }),
       });
 
@@ -80,6 +82,7 @@ export default function UrgentPropertyForm() {
 
       setTitle('');
       setLocation(LOCATIONS[0]);
+      setType('URGENT');
       setIsOpen(false);
       router.refresh();
     } catch (err: any) {
@@ -156,6 +159,23 @@ export default function UrgentPropertyForm() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: '#cbd5e1' }}>
+                  <FileText size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
+                  Select Type
+                </label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+                    <input type="radio" name="urgentType" value="URGENT" checked={type === 'URGENT'} onChange={(e) => setType(e.target.value)} />
+                    Urgent Property
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+                    <input type="radio" name="urgentType" value="RENT" checked={type === 'RENT'} onChange={(e) => setType(e.target.value)} />
+                    Rent Property
+                  </label>
+                </div>
               </div>
 
               <div>

@@ -346,37 +346,7 @@ export default function AdvancedSearchBar({
           
           <div className="mv-divider"></div>
 
-          <div className="mv-properties-filter-input-wrapper" style={{ flex: 1 }}>
-            <div 
-              onClick={() => setActiveDropdown(activeDropdown === 'location' ? null : 'location')}
-              className="mv-dropdown-trigger"
-              style={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', width: '100%', color: location ? '#000' : 'var(--mv-text)', fontWeight: location ? 600 : 400, background: location ? 'var(--mv-accent)' : 'transparent', borderRadius: '8px', transition: 'all 0.2s', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
-            >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{location || (lang === 'mr' ? 'सर्व ठिकाणे' : 'Location')}</span>
-              <ChevronDown size={16} style={{ flexShrink: 0, marginLeft: '4px' }} />
-            </div>
-            {activeDropdown === 'location' && (
-              <div className="mv-custom-loc-dropdown" style={{ position: 'absolute', top: 'calc(100% + 16px)', left: '-10px', width: '240px', background: 'var(--mv-bg-elevated)', borderRadius: '16px', border: '1px solid var(--mv-border)', padding: '8px', zIndex: 100, boxShadow: '0 12px 32px rgba(0,0,0,0.6)', animation: 'slideUp 0.2s ease-out' }}>
-                <style>{`
-                  @keyframes slideUp { from { opacity: 0; transform: translateY(10px) translateX(var(--tx, 0)); } to { opacity: 1; transform: translateY(0) translateX(var(--tx, 0)); } }
-                  @media (max-width: 767px) { @keyframes slideUp { from { opacity: 0; transform: translate(-50%, -40%); } to { opacity: 1; transform: translate(-50%, -50%); } } }
-                  .mv-custom-loc-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: var(--mv-text); display: flex; align-items: center; font-size: 0.9375rem; }
-                  .mv-custom-loc-item:hover { background: rgba(245, 197, 24, 0.1); color: var(--mv-accent); }
-                  .mv-custom-loc-item.active { background: var(--mv-accent); color: #000; font-weight: 600; }
-                `}</style>
-                <div className={`mv-custom-loc-item ${!location ? 'active' : ''}`} onClick={() => { setLocation(''); setActiveDropdown(null); }}>
-                  {lang === 'mr' ? 'सर्व ठिकाणे' : 'All Locations'}
-                </div>
-                {['Ausa Road', 'Barshi Road', 'Ambejogai Road', 'Nanded Road'].map(loc => (
-                  <div key={loc} className={`mv-custom-loc-item ${location === loc ? 'active' : ''}`} onClick={() => { setLocation(loc); setActiveDropdown(null); }}>
-                    <MapPin size={16} style={{ marginRight: '8px' }} /> {loc}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="mv-divider"></div>
+
           
           <div className="mv-properties-filter-input-wrapper" style={{ flex: 1.2 }}>
             <div 

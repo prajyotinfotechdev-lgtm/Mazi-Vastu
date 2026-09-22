@@ -8,13 +8,13 @@ export default function CustomersFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [source, setSource] = useState(searchParams.get('source') || '');
+  const [query, setQuery] = useState(searchParams?.get('q') || '');
+  const [source, setSource] = useState(searchParams?.get('source') || '');
 
   // Sync state to URL with debounce
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || '');
       
       if (query) params.set('q', query);
       else params.delete('q');
@@ -23,7 +23,7 @@ export default function CustomersFilter() {
       else params.delete('source');
 
       const newQueryString = params.toString();
-      const currentQueryString = searchParams.toString();
+      const currentQueryString = searchParams?.toString() || '';
       
       if (newQueryString !== currentQueryString) {
         params.set('page', '1');
