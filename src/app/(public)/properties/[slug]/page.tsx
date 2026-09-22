@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { notFound } from 'next/navigation';
-import { MapPin, Maximize, Home, ShieldCheck, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Maximize, Home, ShieldCheck, ArrowLeft, Image as ImageIcon, Phone, Mail, User } from 'lucide-react';
 import Link from '@/components/ui/LoaderLink';
 import LeadForm from '@/components/public/LeadForm';
 import UnlockButton from '@/components/public/UnlockButton';
@@ -44,6 +44,7 @@ export default async function PropertyDetailPage({ params }: { params: { slug: s
 
   // Reuses the cached result from generateMetadata - zero extra DB roundtrip
   const property = await getProperty(params.slug);
+  const siteSettings = await prisma.siteSettings.findFirst();
 
   if (!property || property.status !== 'PUBLISHED' || property.deletedAt) {
     notFound();
@@ -165,6 +166,45 @@ export default async function PropertyDetailPage({ params }: { params: { slug: s
                 )}
               </div>
             </div>
+
+            {/* Contact Information */}
+            {siteSettings && (
+              <div style={{ marginBottom: 'var(--mv-space-3xl)', padding: '1.5rem', background: 'var(--mv-bg-surface)', borderRadius: '12px', border: '1px solid var(--mv-border)' }}>
+                <h3 className="mv-heading-sm" style={{ color: 'var(--mv-text)', marginBottom: 'var(--mv-space-md)' }}>
+                  {lang === 'mr' ? 'संपर्क माहिती' : 'Contact Information'}
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {siteSettings.founderName && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--mv-text-secondary)', fontSize: '0.9375rem' }}>
+                      <User size={18} />
+                      <span style={{ color: 'var(--mv-text)', fontWeight: 500 }}>{siteSettings.founderName}</span>
+                    </div>
+                  )}
+                  {siteSettings.phone && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--mv-text-secondary)', fontSize: '0.9375rem' }}>
+                      <Phone size={18} />
+                      <a href={`tel:${siteSettings.phone}`} style={{ color: 'var(--mv-accent)', textDecoration: 'none', fontWeight: 500 }}>
+                        {siteSettings.phone}
+                      </a>
+                    </div>
+                  )}
+                  {siteSettings.email && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--mv-text-secondary)', fontSize: '0.9375rem' }}>
+                      <Mail size={18} />
+                      <a href={`mailto:${siteSettings.email}`} style={{ color: 'var(--mv-text)', textDecoration: 'none' }}>
+                        {siteSettings.email}
+                      </a>
+                    </div>
+                  )}
+                  {siteSettings.officeAddress && (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--mv-text-secondary)', fontSize: '0.9375rem' }}>
+                      <MapPin size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <span>{siteSettings.officeAddress}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Lead Form (Check Availability Style) */}
             <div style={{ position: 'relative', marginTop: 'var(--mv-space-4xl)' }}>

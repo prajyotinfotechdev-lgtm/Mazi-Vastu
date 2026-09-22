@@ -49,9 +49,7 @@ export default async function PropertiesSearchPage({
   );
 
   // ─── Step 1: No category selected → show two-option picker ───────────────────
-  if (isSpecialLocation && !category) {
-    return <LocationCategoryPicker location={location} lang={lang} />;
-  }
+  // (Removed per user request to directly show properties)
 
   // ─── Step 2a: Urgent properties (from UrgentProperty table) ──────────────────
   if (isSpecialLocation && category === 'urgent') {
