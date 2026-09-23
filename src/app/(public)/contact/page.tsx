@@ -226,35 +226,49 @@ export default async function ContactPage() {
                 flexDirection: 'column',
                 gap: '0.75rem'
               }}>
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    .mv-social-link {
+                      color: var(--mv-text-secondary);
+                      transition: color 0.2s;
+                    }
+                    .mv-social-wa:hover { color: #25D366; }
+                    .mv-social-ig:hover { color: #E1306C; }
+                    .mv-social-fb:hover { color: #1877F2; }
+                    .mv-social-yt:hover { color: #FF0000; }
+                    .mv-social-li:hover { color: #0A66C2; }
+                    .mv-social-tg:hover { color: #0088cc; }
+                  `
+                }} />
                 <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Follow Us</div>
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                   {wa && (
-                    <a href={wa} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#25D366'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={wa} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-wa">
                       <MessageCircle size={24} />
                     </a>
                   )}
                   {insta && (
-                    <a href={insta} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#E1306C'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={insta} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-ig">
                       <Instagram size={24} />
                     </a>
                   )}
                   {fb && (
-                    <a href={fb} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#1877F2'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={fb} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-fb">
                       <Facebook size={24} />
                     </a>
                   )}
                   {yt && (
-                    <a href={yt} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#FF0000'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={yt} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-yt">
                       <Youtube size={24} />
                     </a>
                   )}
                   {li && (
-                    <a href={li} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#0A66C2'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={li} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-li">
                       <Linkedin size={24} />
                     </a>
                   )}
                   {tg && (
-                    <a href={tg} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--mv-text-secondary)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#0088cc'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--mv-text-secondary)'}>
+                    <a href={tg} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-tg">
                       <Send size={24} />
                     </a>
                   )}
