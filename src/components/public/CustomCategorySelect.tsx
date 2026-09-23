@@ -87,13 +87,13 @@ export default function CustomCategorySelect({ categories, defaultValue, allText
           whiteSpace: 'nowrap', 
           overflow: 'hidden', 
           textOverflow: 'ellipsis',
-          color: selectedValue ? 'var(--mv-text)' : 'var(--mv-text-muted)'
+          color: 'var(--mv-text)'
         }}>
           {selectedLabel}
         </span>
         <ChevronDown 
           size={16} 
-          color="var(--mv-text-muted)" 
+          color="var(--mv-text)" 
           style={{ 
             transition: 'transform 0.2s ease', 
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' 
