@@ -241,35 +241,41 @@ export default async function ContactPage() {
                   `
                 }} />
                 <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--mv-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Follow Us</div>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   {wa && (
-                    <a href={wa} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-wa">
+                    <a href={wa} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-wa" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <MessageCircle size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>WhatsApp</span>
                     </a>
                   )}
                   {insta && (
-                    <a href={insta} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-ig">
+                    <a href={insta} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-ig" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <Instagram size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>Instagram</span>
                     </a>
                   )}
                   {fb && (
-                    <a href={fb} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-fb">
+                    <a href={fb} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-fb" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <Facebook size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>Facebook</span>
                     </a>
                   )}
                   {yt && (
-                    <a href={yt} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-yt">
+                    <a href={yt} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-yt" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <Youtube size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>YouTube</span>
                     </a>
                   )}
                   {li && (
-                    <a href={li} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-li">
+                    <a href={li} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-li" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <Linkedin size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>LinkedIn</span>
                     </a>
                   )}
                   {tg && (
-                    <a href={tg} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-tg">
+                    <a href={tg} target="_blank" rel="noopener noreferrer" className="mv-social-link mv-social-tg" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', textDecoration: 'none' }}>
                       <Send size={24} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>Telegram</span>
                     </a>
                   )}
                 </div>
