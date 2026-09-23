@@ -107,6 +107,31 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!initialData?.id || !confirm('Are you sure you want to delete this service? This action cannot be undone and will permanently remove associated images from Cloudinary.')) return;
+    
+    setLoading(true);
+    showLoader('Deleting Service...');
+    try {
+      const res = await fetch(`/api/admin/services/${initialData.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error?.message || 'Failed to delete service');
+      }
+      toast.success('Service deleted successfully');
+      router.push('/admin/services');
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      hideLoader();
+    }
+  };
+
   return (
     <>
       <style>{`
@@ -353,6 +378,35 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
                   position: 'relative'
                 }}>
                   <img src={iconUrl} alt="Service Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIconUrl('');
+                      setMediaItems([]);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      background: 'rgba(239, 68, 68, 0.9)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      transition: 'transform 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    title="Remove Image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: '#fff' }}>
                     Current Image
                   </div>
@@ -476,9 +530,33 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
                           borderRadius: '8px',
                           overflow: 'hidden',
                           border: '2px solid rgba(245, 197, 24, 0.3)',
-                          flexShrink: 0
+                          flexShrink: 0,
+                          position: 'relative'
                         }}>
                           <img src={contact.photoUrl} alt="Provider" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={() => handleContactChange(idx, 'photoUrl', '')}
+                            style={{
+                              position: 'absolute',
+                              top: '4px',
+                              right: '4px',
+                              background: 'rgba(239, 68, 68, 0.9)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                            }}
+                            title="Remove Photo"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -506,14 +584,29 @@ export default function ServiceForm({ initialData }: ServiceFormProps) {
           </div>
         </div>
 
-        <div className="form-actions">
-          <Link href="/admin/services" className="btn-cancel">
-            Cancel
-          </Link>
-          <button type="submit" disabled={loading} className="btn-submit">
-            <Save size={18} />
-            {loading ? 'Saving Changes...' : (isEdit ? 'Update Service' : 'Create Service')}
-          </button>
+        <div className="form-actions" style={{ justifyContent: isEdit ? 'space-between' : 'flex-end' }}>
+          {isEdit && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={loading}
+              className="btn-cancel"
+              style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)'; }}
+            >
+              Delete Service
+            </button>
+          )}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link href="/admin/services" className="btn-cancel">
+              Cancel
+            </Link>
+            <button type="submit" disabled={loading} className="btn-submit">
+              <Save size={18} />
+              {loading ? 'Saving Changes...' : (isEdit ? 'Update Service' : 'Create Service')}
+            </button>
+          </div>
         </div>
       </form>
     </>

@@ -8,9 +8,22 @@ import { NotFoundError, ConflictError, ValidationError } from '@/lib/errors';
 import { AuditService } from '@/modules/audit/service';
 import { LeadService } from '@/modules/leads/service';
 import { createPaginatedResponse, type PaginatedResponse } from '@/lib/validation/schemas';
+import { deleteMedia } from '@/lib/storage/cloudinary';
 import slugify from 'slugify';
 import { z } from 'zod';
 import type { AlliedService, Prisma } from '@prisma/client';
+
+function extractPublicId(url: string): string | null {
+  try {
+    if (!url.includes('/upload/')) return null;
+    const afterUpload = url.split('/upload/')[1];
+    const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+    const lastDotIndex = withoutVersion.lastIndexOf('.');
+    return lastDotIndex !== -1 ? withoutVersion.substring(0, lastDotIndex) : withoutVersion;
+  } catch (e) {
+    return null;
+  }
+}
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -123,20 +136,48 @@ export class AlliedServiceService {
     }
 
     const data: Prisma.AlliedServiceUpdateInput = {};
+    const imagesToDelete: string[] = [];
+
     if (input.name !== undefined) {
       data.name = input.name;
       data.slug = slugify(input.name, { lower: true, strict: true });
     }
     if (input.description !== undefined) data.description = input.description;
-    if (input.iconUrl !== undefined) data.iconUrl = input.iconUrl;
+    
+    if (input.iconUrl !== undefined) {
+      if (existing.iconUrl && existing.iconUrl !== input.iconUrl) {
+        imagesToDelete.push(existing.iconUrl);
+      }
+      data.iconUrl = input.iconUrl;
+    }
+
     if (input.price !== undefined) data.price = input.price;
     if (input.priceUnit !== undefined) data.priceUnit = input.priceUnit;
     if (input.whatsappNumber !== undefined) data.whatsappNumber = input.whatsappNumber;
     if (input.whatsappMessageTemplate !== undefined)
       data.whatsappMessageTemplate = input.whatsappMessageTemplate;
-    if (input.providerContacts !== undefined) data.providerContacts = input.providerContacts;
+      
+    if (input.providerContacts !== undefined) {
+      if (existing.providerContacts && Array.isArray(existing.providerContacts)) {
+        const newUrls = (input.providerContacts || []).map((c: any) => c.photoUrl).filter(Boolean);
+        for (const oldContact of existing.providerContacts as any[]) {
+          if (oldContact.photoUrl && !newUrls.includes(oldContact.photoUrl)) {
+            imagesToDelete.push(oldContact.photoUrl);
+          }
+        }
+      }
+      data.providerContacts = input.providerContacts;
+    }
+    
     if (input.isActive !== undefined) data.isActive = input.isActive;
     if (input.sortOrder !== undefined) data.sortOrder = input.sortOrder;
+
+    for (const url of imagesToDelete) {
+      const publicId = extractPublicId(url);
+      if (publicId) {
+        await deleteMedia(publicId, 'image').catch(console.error);
+      }
+    }
 
     const service = await prisma.alliedService.update({
       where: { id },
@@ -155,20 +196,37 @@ export class AlliedServiceService {
   }
 
   /**
-   * Soft-deletes a service.
+   * Hard-deletes a service and its associated Cloudinary images.
    */
   static async delete(id: string, adminId: string) {
     const existing = await prisma.alliedService.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
     });
 
     if (!existing) {
       throw new NotFoundError('AlliedService', id);
     }
 
-    await prisma.alliedService.update({
+    // Delete associated images from Cloudinary
+    const imagesToDelete: string[] = [];
+    if (existing.iconUrl) imagesToDelete.push(existing.iconUrl);
+    
+    if (existing.providerContacts && Array.isArray(existing.providerContacts)) {
+      for (const contact of existing.providerContacts as any[]) {
+        if (contact.photoUrl) imagesToDelete.push(contact.photoUrl);
+      }
+    }
+
+    for (const url of imagesToDelete) {
+      const publicId = extractPublicId(url);
+      if (publicId) {
+        await deleteMedia(publicId, 'image').catch(console.error);
+      }
+    }
+
+    // Hard delete the service
+    await prisma.alliedService.delete({
       where: { id },
-      data: { deletedAt: new Date(), isActive: false },
     });
 
     await AuditService.log({
