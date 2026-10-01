@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { t } from '@/lib/i18n/translate';
 import type { Language } from '@/lib/i18n/get-language';
@@ -22,6 +22,25 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
     location: ''
   });
   const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
+  const [propertyTypes, setPropertyTypes] = useState<{ id: string, name: string }[]>([]);
+
+  useEffect(() => {
+    fetch('/api/public/property-types')
+      .then(res => res.json())
+      .then(data => {
+        if (data.items) {
+          const flatTypes: {id: string, name: string}[] = [];
+          data.items.forEach((pt: any) => {
+            flatTypes.push({ id: pt.id, name: pt.name });
+            pt.children?.forEach((child: any) => {
+              flatTypes.push({ id: child.id, name: `- ${child.name}` });
+            });
+          });
+          setPropertyTypes(flatTypes);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -110,12 +129,20 @@ export default function LeadForm({ source, referenceId, visitorInfo, lang = 'en'
           style={{ appearance: 'auto' }}
         >
           <option value="">{lang === 'mr' ? 'प्रकार निवडा' : 'Select type'}</option>
-          <option value="Residential Plot">{lang === 'mr' ? 'निवासी भूखंड' : 'Residential Plot'}</option>
-          <option value="Flat / Apartment">{lang === 'mr' ? 'फ्लॅट / अपार्टमेंट' : 'Flat / Apartment'}</option>
-          <option value="Independent House">{lang === 'mr' ? 'स्वतंत्र घर' : 'Independent House'}</option>
-          <option value="Commercial">{lang === 'mr' ? 'व्यावसायिक' : 'Commercial'}</option>
-          <option value="Agricultural Land">{lang === 'mr' ? 'शेतजमीन' : 'Agricultural Land'}</option>
-          <option value="Other">{lang === 'mr' ? 'इतर' : 'Other'}</option>
+          {propertyTypes.length > 0 ? (
+            propertyTypes.map(pt => (
+              <option key={pt.id} value={pt.name}>{pt.name}</option>
+            ))
+          ) : (
+            <>
+              <option value="Residential Plot">{lang === 'mr' ? 'निवासी भूखंड' : 'Residential Plot'}</option>
+              <option value="Flat / Apartment">{lang === 'mr' ? 'फ्लॅट / अपार्टमेंट' : 'Flat / Apartment'}</option>
+              <option value="Independent House">{lang === 'mr' ? 'स्वतंत्र घर' : 'Independent House'}</option>
+              <option value="Commercial">{lang === 'mr' ? 'व्यावसायिक' : 'Commercial'}</option>
+              <option value="Agricultural Land">{lang === 'mr' ? 'शेतजमीन' : 'Agricultural Land'}</option>
+              <option value="Other">{lang === 'mr' ? 'इतर' : 'Other'}</option>
+            </>
+          )}
         </select>
       </div>
       <div>

@@ -17,12 +17,15 @@ export async function POST(request: NextRequest) {
       mappedBody.propertyId = body.referenceId;
     } else if (body.source === 'SERVICE_CONTACT') {
       mappedBody.serviceId = body.referenceId;
+    } else if (body.source === 'HOMEPAGE_CUSTOMER_FORM') {
+      mappedBody.source = 'CONSULTATION';
     }
 
-    // Map message to metadata
-    if (body.message) {
-      mappedBody.metadata = { message: body.message };
-    }
+    // Map extra fields to metadata
+    mappedBody.metadata = {};
+    if (body.message) mappedBody.metadata.message = body.message;
+    if (body.propertyType) mappedBody.metadata.propertyType = body.propertyType;
+    if (body.location) mappedBody.metadata.location = body.location;
 
     // Allow empty email instead of failing validation
     if (mappedBody.email === '') {
