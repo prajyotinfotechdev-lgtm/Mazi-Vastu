@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function EditPropertyTypePage({ params }: { params: { id: string } }) {
   const propertyType = await prisma.propertyType.findUnique({
-    where: { id: params.id, deletedAt: null }
+    where: { id: params.id }
   });
 
   if (!propertyType) {

@@ -105,7 +105,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
       where: { isActive: true, deletedAt: null },
       orderBy: { sortOrder: 'asc' }, take: 8
     }),
-    prisma.propertyType.findMany({ where: { deletedAt: null, isActive: true }, orderBy: { sortOrder: 'asc' } }),
+    prisma.propertyType.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
     prisma.property.count({ where: { status: 'PUBLISHED', deletedAt: null } }),
     prisma.alliedService.count({ where: { isActive: true, deletedAt: null } }),
     prisma.advertisement.findFirst({

@@ -213,7 +213,7 @@ export default async function PropertiesSearchPage({
 
   // ─── Shared data for normal / rent views ─────────────────────────────────────
   const types = await prisma.propertyType.findMany({
-    where: { deletedAt: null, isActive: true },
+    where: { isActive: true },
     orderBy: { sortOrder: 'asc' }
   });
 

@@ -78,12 +78,11 @@ export default async function AdminLeadsPage({
     }),
     prisma.lead.count({ where: whereClause }),
     prisma.propertyType.findMany({
-      where: { deletedAt: null, parentId: null },
+      where: { parentId: null },
       select: { 
         id: true, 
         name: true,
         children: {
-          where: { deletedAt: null },
           select: { id: true, name: true },
           orderBy: { name: 'asc' }
         }
