@@ -43,7 +43,7 @@ export class PropertyTypeService {
     // Verify parent exists if specified
     if (input.parentId) {
       const parent = await prisma.propertyType.findUnique({
-        where: { id: input.parentId, deletedAt: null },
+        where: { id: input.parentId },
       });
       if (!parent) {
         throw new NotFoundError('Parent PropertyType', input.parentId);
@@ -77,7 +77,7 @@ export class PropertyTypeService {
    */
   static async update(id: string, input: UpdatePropertyTypeInput, adminId: string) {
     const existing = await prisma.propertyType.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
     });
 
     if (!existing) {
@@ -125,7 +125,7 @@ export class PropertyTypeService {
    */
   static async delete(id: string, adminId: string) {
     const existing = await prisma.propertyType.findUnique({
-      where: { id, deletedAt: null },
+      where: { id },
       include: { children: true },
     });
 
@@ -149,9 +149,8 @@ export class PropertyTypeService {
       );
     }
 
-    await prisma.propertyType.update({
+    await prisma.propertyType.delete({
       where: { id },
-      data: { deletedAt: new Date(), isActive: false },
     });
 
     await AuditService.log({
@@ -167,7 +166,6 @@ export class PropertyTypeService {
    */
   static async listAll(includeInactive = false) {
     const where: Prisma.PropertyTypeWhereInput = {
-      deletedAt: null,
       ...(!includeInactive && { isActive: true }),
     };
 
@@ -190,7 +188,6 @@ export class PropertyTypeService {
     return prisma.propertyType.findMany({
       where: {
         isActive: true,
-        deletedAt: null,
         parentId: null,
       },
       select: {
@@ -200,7 +197,7 @@ export class PropertyTypeService {
         description: true,
         sortOrder: true,
         children: {
-          where: { isActive: true, deletedAt: null },
+          where: { isActive: true },
           orderBy: { sortOrder: 'asc' },
           select: {
             id: true,

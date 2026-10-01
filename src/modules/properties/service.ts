@@ -36,7 +36,7 @@ export class PropertyService {
   ) {
     // Verify property type exists
     const propertyType = await prisma.propertyType.findUnique({
-      where: { id: input.propertyTypeId, deletedAt: null },
+      where: { id: input.propertyTypeId },
     });
 
     if (!propertyType) {
@@ -169,7 +169,7 @@ export class PropertyService {
     // Verify property type if changing
     if (input.propertyTypeId && input.propertyTypeId !== existing.propertyTypeId) {
       const propertyType = await prisma.propertyType.findUnique({
-        where: { id: input.propertyTypeId, deletedAt: null },
+        where: { id: input.propertyTypeId },
       });
       if (!propertyType) {
         throw new NotFoundError('PropertyType', input.propertyTypeId);

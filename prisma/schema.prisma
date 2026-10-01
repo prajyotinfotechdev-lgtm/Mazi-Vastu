@@ -125,7 +125,6 @@ model PropertyType {
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime? // Soft delete
 
   parent   PropertyType?  @relation("PropertyTypeHierarchy", fields: [parentId], references: [id])
   children PropertyType[] @relation("PropertyTypeHierarchy")
