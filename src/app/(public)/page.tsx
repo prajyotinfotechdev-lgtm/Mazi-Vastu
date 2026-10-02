@@ -55,7 +55,6 @@ const getServiceIcon = (name: string, size: number = 40) => {
 };
 
 import { Search as SearchIcon } from 'lucide-react';
-import SearchIconCustom from '@/components/icons/SearchIcon';
 import React from 'react';
 import FilterModal from '@/components/public/FilterModal';
 import PremiumSearchBar from '@/components/public/PremiumSearchBar';
@@ -88,6 +87,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
     ad,
     uniqueLocationsData,
     urgentProperties,
+    cityAds,
   ] = await Promise.all([
     prisma.property.findMany({
       where: { status: 'PUBLISHED', deletedAt: null },
@@ -103,7 +103,8 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
     }),
     prisma.alliedService.findMany({
       where: { isActive: true, deletedAt: null },
-      orderBy: { sortOrder: 'asc' }, take: 8
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      take: 8
     }),
     prisma.propertyType.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
     prisma.property.count({ where: { status: 'PUBLISHED', deletedAt: null } }),
@@ -121,11 +122,36 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
       where: { isActive: true },
       orderBy: { createdAt: 'desc' },
     }),
+    prisma.advertisement.findMany({
+      where: {
+        status: 'ACTIVE',
+        deletedAt: null,
+        placements: {
+          some: {
+            pageContext: { not: null }
+          }
+        }
+      },
+      include: {
+        media: { orderBy: { sortOrder: 'asc' }, take: 2 },
+        placements: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
   ]);
 
   const rawLocations = uniqueLocationsData.map((l: any) => l.approximateLocation?.trim()).filter(Boolean) as string[];
   const uniqueLocations = Array.from(new Set(rawLocations.map(loc => loc.toLowerCase()))).map(lowerLoc => rawLocations.find(loc => loc.toLowerCase() === lowerLoc) || '');
   const searchedProperties = searchedPropertiesRaw || [];
+
+  const cityAdsMap: Record<string, any> = {};
+  (cityAds || []).forEach(adItem => {
+    adItem.placements?.forEach(p => {
+      if (p.pageContext && !cityAdsMap[p.pageContext]) {
+        cityAdsMap[p.pageContext] = adItem;
+      }
+    });
+  });
 
   const cookieStore = cookies();
   const visitorCookie = cookieStore.get('visitor_info');
@@ -639,7 +665,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
         </div>
       </section>
 
-      {/* CITIES OF LATUR DISTRICT */}
+      {/* CITIES OF LATUR DISTRICT & CITY ADVERTISEMENTS */}
       <section className="mv-container mv-section">
         <div className="mv-section-header" style={{ justifyContent: 'center', textAlign: 'center' }}>
           <div>
@@ -668,8 +694,13 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
             }
             .mv-city-card:hover {
               transform: translateY(-4px);
-              border-color: rgba(245, 197, 24, 0.3);
+              border-color: rgba(245, 197, 24, 0.4);
               box-shadow: 0 8px 24px rgba(245, 197, 24, 0.15);
+            }
+            .mv-city-card-ad {
+              border-color: rgba(245, 197, 24, 0.35);
+              background: linear-gradient(145deg, rgba(35,28,10,0.95), rgba(18,14,5,0.95));
+              box-shadow: 0 4px 16px rgba(245, 197, 24, 0.08);
             }
           `
         }} />
@@ -679,22 +710,106 @@ export default async function HomePage({ searchParams }: { searchParams?: { q?: 
           gap: '16px',
           paddingTop: '16px',
         }}>
-          {LATUR_CITIES.map(city => (
-            <Link key={city.slug} href={`/properties/latur/${city.slug}`} className="mv-city-card">
-              <MapPin size={24} style={{ color: 'var(--mv-accent)', marginBottom: '12px' }} />
-              <h3 style={{ 
-                fontFamily: 'Outfit, sans-serif', 
-                color: 'var(--mv-text)', 
-                fontSize: '1rem', 
-                fontWeight: 600, 
-                margin: 0,
-                textAlign: 'center'
-              }}>
-                {lang === 'mr' ? city.marathiName : city.name}
-              </h3>
-            </Link>
-          ))}
+          {LATUR_CITIES.map(city => {
+            const cityAd = cityAdsMap[city.slug];
+            return (
+              <Link 
+                key={city.slug} 
+                href={`/properties/latur/${city.slug}`} 
+                className={`mv-city-card ${cityAd ? 'mv-city-card-ad' : ''}`}
+              >
+                {cityAd && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '6px',
+                    right: '6px',
+                    background: 'var(--mv-accent)',
+                    color: '#000',
+                    fontSize: '0.625rem',
+                    fontWeight: 800,
+                    padding: '2px 5px',
+                    borderRadius: '4px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    lineHeight: 1
+                  }}>
+                    {lang === 'mr' ? 'जाहिरात' : 'Ad'}
+                  </span>
+                )}
+                <MapPin size={24} style={{ color: 'var(--mv-accent)', marginBottom: '10px' }} />
+                <h3 style={{ 
+                  fontFamily: 'Outfit, sans-serif', 
+                  color: 'var(--mv-text)', 
+                  fontSize: '1rem', 
+                  fontWeight: 600, 
+                  margin: 0,
+                  textAlign: 'center'
+                }}>
+                  {lang === 'mr' ? city.marathiName : city.name}
+                </h3>
+                {cityAd && (
+                  <span style={{ 
+                    fontSize: '0.75rem', 
+                    color: 'var(--mv-accent)', 
+                    marginTop: '6px', 
+                    textAlign: 'center', 
+                    lineHeight: 1.2, 
+                    display: '-webkit-box', 
+                    WebkitLineClamp: 1, 
+                    WebkitBoxOrient: 'vertical', 
+                    overflow: 'hidden',
+                    maxWidth: '100%',
+                    fontWeight: 500
+                  }}>
+                    {cityAd.title}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
+
+        {/* City-Specific Advertisements Banner Showcase */}
+        {cityAds && cityAds.length > 0 && (
+          <div style={{ marginTop: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', color: 'var(--mv-accent)', fontWeight: 700 }}>
+              <Sparkles size={18} />
+              <span>{lang === 'mr' ? 'शहरातील विशेष जाहिराती व ऑफर्स' : 'Special City Advertisements & Offers'}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              {cityAds.map((adItem: any) => {
+                const targetSlug = adItem.placements?.find((p: any) => p.pageContext)?.pageContext;
+                const targetCity = LATUR_CITIES.find(c => c.slug === targetSlug);
+                const targetCityName = targetCity ? (lang === 'mr' ? targetCity.marathiName : targetCity.name) : '';
+                return (
+                  <div key={adItem.id} style={{ position: 'relative' }}>
+                    {targetCityName && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        left: '20px',
+                        zIndex: 20,
+                        background: 'var(--mv-accent)',
+                        color: '#000',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        padding: '2px 10px',
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <MapPin size={12} /> {targetCityName}
+                      </div>
+                    )}
+                    <AdBanner ad={adItem as any} layout="premium" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 5. CTA BANNER */}

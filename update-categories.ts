@@ -10,14 +10,14 @@ async function main() {
   if (rentCategory) {
     await prisma.propertyType.update({
       where: { id: rentCategory.id },
-      data: { isActive: false, deletedAt: new Date() }
+      data: { isActive: false }
     });
   }
 
   // Add "Bungalow"
   await prisma.propertyType.upsert({
     where: { slug: 'bungalow' },
-    update: { isActive: true, deletedAt: null },
+    update: { isActive: true },
     create: {
       name: 'Bungalow',
       slug: 'bungalow',
@@ -29,7 +29,7 @@ async function main() {
   // Add "Godown"
   await prisma.propertyType.upsert({
     where: { slug: 'godown' },
-    update: { isActive: true, deletedAt: null },
+    update: { isActive: true },
     create: {
       name: 'Godown',
       slug: 'godown',

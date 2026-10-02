@@ -5,6 +5,9 @@ import DeleteAdvertisementButton from '@/components/admin/DeleteAdvertisementBut
 import Pagination from '@/components/admin/Pagination';
 import AdvertisementsFilter from '@/components/admin/AdvertisementsFilter';
 
+import { LATUR_CITIES } from '@/lib/seo/latur-cities';
+import { MapPin } from 'lucide-react';
+
 export default async function AdminAdvertisementsPage({
   searchParams,
 }: {
@@ -27,6 +30,7 @@ export default async function AdminAdvertisementsPage({
   const [advertisements, totalItems] = await Promise.all([
     prisma.advertisement.findMany({
       where: whereClause,
+      include: { placements: true },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE
@@ -105,11 +109,23 @@ export default async function AdminAdvertisementsPage({
                   </td>
                 </tr>
               )}
-              {advertisements.map((ad) => (
-                <tr key={ad.id} style={{ borderBottom: '1px solid var(--mv-border)' }} className="mv-admin-tr">
-                  <td style={{ padding: '1rem', color: 'var(--mv-text)', fontWeight: 500 }}>
-                    {ad.title}
-                  </td>
+              {advertisements.map((ad) => {
+                const targetSlug = ad.placements?.find((p: any) => p.pageContext)?.pageContext;
+                const targetCity = targetSlug ? LATUR_CITIES.find(c => c.slug === targetSlug) : null;
+                return (
+                  <tr key={ad.id} style={{ borderBottom: '1px solid var(--mv-border)' }} className="mv-admin-tr">
+                    <td style={{ padding: '1rem', color: 'var(--mv-text)', fontWeight: 500 }}>
+                      <div>{ad.title}</div>
+                      {targetCity ? (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--mv-accent)', marginTop: '4px', background: 'rgba(245, 197, 24, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                          <MapPin size={10} /> {targetCity.name} ({targetCity.marathiName})
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--mv-text-muted)', marginTop: '4px' }}>
+                          District-wide (सर्व शहरे)
+                        </div>
+                      )}
+                    </td>
                   <td style={{ padding: '1rem' }}>
                     <span className={`mv-badge ${ad.status === 'ACTIVE' ? 'mv-badge-accent' : ''}`} style={{ 
                       background: ad.status === 'DRAFT' ? 'var(--mv-bg-elevated)' : (ad.status === 'ACTIVE' ? undefined : 'rgba(239, 68, 68, 0.1)'), 
@@ -138,7 +154,8 @@ export default async function AdminAdvertisementsPage({
                     </div>
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>

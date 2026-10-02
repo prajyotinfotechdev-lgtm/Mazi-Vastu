@@ -83,11 +83,11 @@ export class InMemoryRateLimiter implements RateLimiter {
 
   private cleanup(): void {
     const now = Date.now();
-    for (const [key, bucket] of this.buckets) {
+    this.buckets.forEach((bucket, key) => {
       if (now - bucket.lastRefill > this.config.windowMs * 2) {
         this.buckets.delete(key);
       }
-    }
+    });
   }
 
   destroy(): void {

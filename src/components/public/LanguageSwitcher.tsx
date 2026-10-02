@@ -12,8 +12,7 @@ export default function LanguageSwitcher({ currentLang }: LanguageSwitcherProps)
 
   return (
     <form action="/api/public/set-language" method="POST">
-      <input type="hidden" name="lang" value={isMarathi ? 'en' : 'mr'} />
-      <input type="hidden" name="redirectTo" value={pathname} />
+      <input type="hidden" name="redirectTo" value={pathname || ''} />
       <button
         type="submit"
         style={{

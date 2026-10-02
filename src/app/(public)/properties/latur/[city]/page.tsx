@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from '@/components/ui/LoaderLink';
-import { MapPin, Home, Building2, Map, ArrowRight, Star, TrendingUp, Phone } from 'lucide-react';
+import { MapPin, Home, Building2, Map, ArrowRight, Star, TrendingUp, Phone, Sparkles } from 'lucide-react';
 import { LATUR_CITIES, LATUR_DISTRICT_META } from '@/lib/seo/latur-cities';
 import { prisma } from '@/lib/db/prisma';
 import PropertyCard from '@/components/public/PropertyCard';
+import AdBanner from '@/components/public/AdBanner';
 
 const BASE_URL = 'https://mazivastu.com';
 
@@ -76,6 +77,24 @@ export default async function CityLandingPage({ params }: PageProps) {
     include: { media: { orderBy: { sortOrder: 'asc' }, take: 1 }, propertyType: true },
     orderBy: { createdAt: 'desc' },
     take: 8,
+  });
+
+  // Fetch active advertisement for this city
+  const cityAd = await prisma.advertisement.findFirst({
+    where: {
+      status: 'ACTIVE',
+      deletedAt: null,
+      placements: {
+        some: {
+          pageContext: city.slug,
+        },
+      },
+    },
+    include: {
+      media: { orderBy: { sortOrder: 'asc' }, take: 2 },
+      placements: true,
+    },
+    orderBy: { createdAt: 'desc' },
   });
 
   // All properties count for this city
@@ -394,6 +413,26 @@ export default async function CityLandingPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* City Advertisement Banner */}
+        {cityAd && (
+          <div style={{ maxWidth: '1100px', margin: '2rem auto 0', padding: '0 1rem' }}>
+            <div style={{
+              marginBottom: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: 'var(--mv-accent)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              <Sparkles size={16} /> Featured {city.name} Advertisement
+            </div>
+            <AdBanner ad={cityAd as any} layout="premium" />
+          </div>
+        )}
 
         {/* Properties Section */}
         <div className="city-section">

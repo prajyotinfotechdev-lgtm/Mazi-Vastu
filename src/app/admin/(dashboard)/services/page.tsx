@@ -20,7 +20,7 @@ export default async function ServicesPage({
   const [services, totalItems] = await Promise.all([
     prisma.alliedService.findMany({
       where: whereClause,
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE
     }),

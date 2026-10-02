@@ -58,7 +58,7 @@ export class PropertyService {
         slug,
         title: input.title,
         description: input.description,
-        propertyTypeId: input.propertyTypeId || undefined,
+        propertyTypeId: input.propertyTypeId,
         status: input.status || 'DRAFT',
         approximateLocation: input.approximateLocation,
         city: input.city,
@@ -99,7 +99,7 @@ export class PropertyService {
     if (property.status === 'PUBLISHED') {
       const idempotencyKey = `new-property:${property.id}`;
       
-      const typeName = property.propertyType?.name || 'property';
+      const typeName = (property as any).propertyType?.name || 'property';
       const cityName = property.approximateLocation || 'your area';
 
       await prisma.notificationOutbox.create({
@@ -180,9 +180,9 @@ export class PropertyService {
       where: { id: propertyId },
       data: {
         ...(input.title !== undefined && { title: input.title }),
-        ...(input.status !== undefined && { status: input.status }),
         ...(input.description !== undefined && { description: input.description }),
-        ...(input.propertyTypeId !== undefined && { propertyTypeId: input.propertyTypeId }),
+        ...(input.status !== undefined && { status: input.status }),
+        ...(input.propertyTypeId ? { propertyType: { connect: { id: input.propertyTypeId } } } : {}),
         ...(input.approximateLocation !== undefined && { approximateLocation: input.approximateLocation }),
         ...(input.city !== undefined && { city: input.city }),
         ...(input.gatedLocation !== undefined && { gatedLocation: input.gatedLocation }),
@@ -191,7 +191,7 @@ export class PropertyService {
         ...(input.contactNumber !== undefined && { contactNumber: input.contactNumber }),
         ...(input.price !== undefined && { price: input.price }),
         ...(input.priceType !== undefined && { priceType: input.priceType }),
-        ...(validatedMetadata !== undefined && { metadata: validatedMetadata }),
+        ...(validatedMetadata !== undefined && { metadata: validatedMetadata as any }),
         ...(input.seoTitle !== undefined && { seoTitle: input.seoTitle }),
         ...(input.seoDescription !== undefined && { seoDescription: input.seoDescription }),
         slug: newSlug,

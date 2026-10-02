@@ -2,14 +2,22 @@
 // Handles push notifications and basic offline caching for PWA.
 // ──────────────────────────────────────────────────────────────────────────────
 
-const CACHE_NAME = 'mazivastu-v2';
+const CACHE_NAME = 'mazivastu-v3';
 
 // Install — skip waiting immediately (don't try to cache dynamic pages)
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Only cache the manifest and static assets, NOT the dynamic "/" page
-      return cache.addAll(['/manifest.json', '/images/logo.jpg']);
+      // Cache manifest and PWA icons
+      return cache.addAll([
+        '/manifest.json',
+        '/icons/icon-192x192.png',
+        '/icons/icon-512x512.png',
+        '/icons/icon-maskable-192x192.png',
+        '/icons/icon-maskable-512x512.png',
+        '/icons/apple-touch-icon.png',
+        '/images/logo.jpg'
+      ]);
     })
   );
   self.skipWaiting();
@@ -72,8 +80,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body || 'New update from MaziVastu',
-    icon: '/images/logo.jpg',
-    badge: '/images/logo.jpg',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/favicon-32x32.png',
     data: {
       url: data.url || '/',
     },

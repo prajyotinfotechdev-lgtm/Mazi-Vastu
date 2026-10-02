@@ -6,7 +6,6 @@ import { Filter, Search, Home, Map, Building, Building2, Store, Mountain, Key, I
 import Link from '@/components/ui/LoaderLink';
 import { cookies } from 'next/headers';
 import { getLanguage } from '@/lib/i18n/get-language';
-import { getDictionary } from '@/lib/i18n/translate';
 import CustomCategorySelect from '@/components/public/CustomCategorySelect';
 import AdvancedSearchBar from '@/components/public/AdvancedSearchBar';
 import { t } from '@/lib/i18n/translate';
@@ -408,7 +407,7 @@ export default async function PropertiesSearchPage({
 
               return (
                 <React.Fragment key={prop.id}>
-                  <PropertyCard property={prop} isLocked={isLocked} lang={lang} variant="horizontal" />
+                  <PropertyCard property={prop as any} isLocked={isLocked} lang={lang} variant="horizontal" />
                   {shouldInjectAd && (
                     <div style={{ width: '100%', margin: 'var(--mv-space-md) 0' }}>
                       <AdBanner ad={categoryAds[adIndex]} layout="premium" />

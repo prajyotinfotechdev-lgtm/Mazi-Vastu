@@ -15,7 +15,7 @@ export default async function PublicServicesPage() {
 
   const services = await prisma.alliedService.findMany({
     where: { isActive: true, deletedAt: null },
-    orderBy: { sortOrder: 'asc' }
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }]
   });
 
   return (
@@ -132,7 +132,7 @@ export default async function PublicServicesPage() {
           <div className="ultra-grid">
             {services.map((service, idx) => (
               <div key={service.id} className="stagger-item" style={{ animationDelay: `${0.2 + idx * 0.1}s` }}>
-                <ServiceCard service={service} isRegistered={!!visitor} lang={lang} />
+                <ServiceCard service={service as any} isRegistered={!!visitor} lang={lang} />
               </div>
             ))}
           </div>

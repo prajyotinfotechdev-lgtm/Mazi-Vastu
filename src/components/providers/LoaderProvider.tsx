@@ -23,17 +23,19 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
     setIsVisible(false);
   }, [pathname, searchParams]);
 
-  const showLoader = (text = 'Loading') => {
+  const showLoader = React.useCallback((text = 'Loading') => {
     setLoadingText(text);
     setIsVisible(true);
-  };
+  }, []);
 
-  const hideLoader = () => {
+  const hideLoader = React.useCallback(() => {
     setIsVisible(false);
-  };
+  }, []);
+
+  const value = React.useMemo(() => ({ showLoader, hideLoader }), [showLoader, hideLoader]);
 
   return (
-    <LoaderContext.Provider value={{ showLoader, hideLoader }}>
+    <LoaderContext.Provider value={value}>
       {children}
       {isVisible && <GlobalLoader text={loadingText} />}
     </LoaderContext.Provider>

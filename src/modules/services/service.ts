@@ -63,19 +63,20 @@ export type UpdateServiceInput = z.infer<typeof updateServiceSchema>;
 export function generateWhatsAppUrl(
   phoneNumber: string,
   messageTemplate: string,
-  context: { serviceName: string; price?: number | null; priceUnit?: string | null; userName?: string }
+  context: string | { serviceName: string; price?: number | null; priceUnit?: string | null; userName?: string }
 ): string {
   // Validate phone number format
   if (!/^\d{10,15}$/.test(phoneNumber)) {
     throw new ValidationError('Invalid WhatsApp number format');
   }
 
-  const priceStr = context.price ? `₹${context.price}${context.priceUnit ? ` ${context.priceUnit}` : ''}` : 'N/A';
+  const ctx = typeof context === 'string' ? { serviceName: context } : context;
+  const priceStr = ctx.price ? `₹${ctx.price}${ctx.priceUnit ? ` ${ctx.priceUnit}` : ''}` : 'N/A';
 
   // Fill template
-  let message = messageTemplate.replace(/\{serviceName\}/g, context.serviceName);
+  let message = messageTemplate.replace(/\{serviceName\}/g, ctx.serviceName);
   message = message.replace(/\{price\}/g, priceStr);
-  message = message.replace(/\{userName\}/g, context.userName || 'a customer');
+  message = message.replace(/\{userName\}/g, ctx.userName || 'a customer');
 
   // Encode and generate wa.me URL
   const encodedMessage = encodeURIComponent(message);
@@ -96,6 +97,16 @@ export class AlliedServiceService {
       throw new ConflictError(`Service '${input.name}' already exists`);
     }
 
+    // Auto-assign sortOrder to place new service at the end of the list
+    let sortOrder = input.sortOrder;
+    if (!sortOrder || sortOrder <= 0) {
+      const highest = await prisma.alliedService.findFirst({
+        orderBy: { sortOrder: 'desc' },
+        select: { sortOrder: true },
+      });
+      sortOrder = (highest?.sortOrder ?? 0) + 1;
+    }
+
     const service = await prisma.alliedService.create({
       data: {
         name: input.name,
@@ -108,7 +119,7 @@ export class AlliedServiceService {
         whatsappMessageTemplate: input.whatsappMessageTemplate,
         providerContacts: input.providerContacts || [],
         isActive: input.isActive,
-        sortOrder: input.sortOrder,
+        sortOrder,
       },
     });
 
@@ -246,7 +257,7 @@ export class AlliedServiceService {
         deletedAt: null,
         ...(!includeInactive && { isActive: true }),
       },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     });
   }
 
@@ -256,7 +267,7 @@ export class AlliedServiceService {
   static async listPublic() {
     const services = await prisma.alliedService.findMany({
       where: { isActive: true, deletedAt: null },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       select: {
         id: true,
         name: true,

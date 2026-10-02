@@ -20,8 +20,8 @@ export default async function CustomerDetailsPage({ params }: { params: { phone:
   const latestContactDate = latestLead.createdAt;
 
   // Bulk fetch related entities
-  const propertyIds = [...new Set(leads.map(l => l.propertyId).filter(Boolean) as string[])];
-  const serviceIds = [...new Set(leads.map(l => l.serviceId).filter(Boolean) as string[])];
+  const propertyIds = Array.from(new Set(leads.map(l => l.propertyId).filter(Boolean) as string[]));
+  const serviceIds = Array.from(new Set(leads.map(l => l.serviceId).filter(Boolean) as string[]));
 
   const [properties, services] = await Promise.all([
     propertyIds.length > 0 ? prisma.property.findMany({

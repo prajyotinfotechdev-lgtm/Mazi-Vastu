@@ -2,7 +2,7 @@
 // Sets up environment variables for tests.
 // ──────────────────────────────────────────────────────────────────────────────
 
-process.env.NODE_ENV = 'test';
+(process.env as any).NODE_ENV = 'test';
 process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/majhi_vastu_test?schema=public';
 process.env.AUTH_SECRET = 'test-auth-secret-at-least-16-chars';
 process.env.CLOUDINARY_CLOUD_NAME = 'test-cloud';

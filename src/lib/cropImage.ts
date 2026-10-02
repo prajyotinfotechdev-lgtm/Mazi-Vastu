@@ -18,70 +18,86 @@ export default async function getCroppedImg(
   flip = { horizontal: false, vertical: false }
 ): Promise<File | null> {
   const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
 
-  if (!ctx) {
-    return null;
-  }
-
-  // calculate bounding box of the rotated image
-  const rotRad = getRadianAngle(rotation);
-  const bBoxWidth =
-    Math.abs(Math.cos(rotRad) * image.width) + Math.abs(Math.sin(rotRad) * image.height);
-  const bBoxHeight =
-    Math.abs(Math.sin(rotRad) * image.width) + Math.abs(Math.cos(rotRad) * image.height);
-
-  // set canvas size to match the bounding box
-  canvas.width = bBoxWidth;
-  canvas.height = bBoxHeight;
-
-  // translate canvas context to a central location to allow rotating and flipping around the center
-  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
-  ctx.rotate(rotRad);
-  ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
-  ctx.translate(-image.width / 2, -image.height / 2);
-
-  // draw rotated image
-  ctx.drawImage(image, 0, 0);
+  const targetWidth = Math.max(1, Math.round(pixelCrop.width));
+  const targetHeight = Math.max(1, Math.round(pixelCrop.height));
 
   const croppedCanvas = document.createElement('canvas');
-  const croppedCtx = croppedCanvas.getContext('2d');
+  const croppedCtx = croppedCanvas.getContext('2d', { willReadFrequently: true });
 
   if (!croppedCtx) {
     return null;
   }
 
-  // Set the size of the cropped canvas
-  croppedCanvas.width = pixelCrop.width;
-  croppedCanvas.height = pixelCrop.height;
+  croppedCanvas.width = targetWidth;
+  croppedCanvas.height = targetHeight;
+  croppedCtx.imageSmoothingEnabled = true;
+  croppedCtx.imageSmoothingQuality = 'high';
 
-  // Draw the cropped image onto the new canvas
-  croppedCtx.drawImage(
-    canvas,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
+  // If no rotation and no flip, crop directly for maximum performance & fidelity
+  if (rotation === 0 && !flip.horizontal && !flip.vertical) {
+    croppedCtx.drawImage(
+      image,
+      Math.max(0, Math.round(pixelCrop.x)),
+      Math.max(0, Math.round(pixelCrop.y)),
+      targetWidth,
+      targetHeight,
+      0,
+      0,
+      targetWidth,
+      targetHeight
+    );
+  } else {
+    // Rotated / flipped transform canvas
+    const rotRad = getRadianAngle(rotation);
+    const bBoxWidth =
+      Math.abs(Math.cos(rotRad) * image.naturalWidth) + Math.abs(Math.sin(rotRad) * image.naturalHeight);
+    const bBoxHeight =
+      Math.abs(Math.sin(rotRad) * image.naturalWidth) + Math.abs(Math.cos(rotRad) * image.naturalHeight);
 
-  // As a blob
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return null;
+
+    tempCanvas.width = bBoxWidth;
+    tempCanvas.height = bBoxHeight;
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = 'high';
+
+    tempCtx.translate(bBoxWidth / 2, bBoxHeight / 2);
+    tempCtx.rotate(rotRad);
+    tempCtx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
+    tempCtx.translate(-image.naturalWidth / 2, -image.naturalHeight / 2);
+    tempCtx.drawImage(image, 0, 0);
+
+    croppedCtx.drawImage(
+      tempCanvas,
+      Math.max(0, Math.round(pixelCrop.x)),
+      Math.max(0, Math.round(pixelCrop.y)),
+      targetWidth,
+      targetHeight,
+      0,
+      0,
+      targetWidth,
+      targetHeight
+    );
+  }
+
   return new Promise((resolve) => {
-    croppedCanvas.toBlob((file) => {
-      if (file) {
-        // give a default filename
-        const croppedFile = new File([file], 'cropped_image.webp', {
-          type: 'image/webp',
-          lastModified: Date.now(),
-        });
-        resolve(croppedFile);
-      } else {
-        resolve(null);
-      }
-    }, 'image/webp', 0.9);
+    croppedCanvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const croppedFile = new File([blob], `cropped_${Date.now()}.webp`, {
+            type: 'image/webp',
+            lastModified: Date.now(),
+          });
+          resolve(croppedFile);
+        } else {
+          resolve(null);
+        }
+      },
+      'image/webp',
+      0.95
+    );
   });
 }

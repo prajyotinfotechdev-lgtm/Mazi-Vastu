@@ -45,12 +45,13 @@ const mockProperty = {
 vi.mock('@/lib/db/prisma', () => {
   const ads = new Map();
   const properties = new Map();
+  let idCounter = 1;
 
   return {
     prisma: {
       advertisement: {
         create: vi.fn(({ data }) => {
-          const ad = { ...mockAdvertisement, ...data, id: `ad-${Date.now()}` };
+          const ad = { ...mockAdvertisement, ...data, id: `ad-${++idCounter}` };
           ads.set(ad.id, ad);
           return ad;
         }),

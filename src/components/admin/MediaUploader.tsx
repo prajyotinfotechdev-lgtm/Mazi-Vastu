@@ -17,10 +17,20 @@ interface MediaUploaderProps {
   onMediaUploaded: (media: UploadedMedia[]) => void;
 }
 
+interface MediaQueueItem {
+  file: File;
+  url: string;
+  type: 'IMAGE' | 'VIDEO';
+}
+
+interface ProcessedMediaItem {
+  file: File;
+  cropData?: any;
+}
+
 interface UploadSession {
-  videos: File[];
-  imagesToCrop: { file: File; url: string }[];
-  croppedImages: File[];
+  mediaToCrop: MediaQueueItem[];
+  processedMedia: ProcessedMediaItem[];
 }
 
 export default function MediaUploader({ initialMedia = [], onMediaUploaded }: MediaUploaderProps) {
@@ -36,23 +46,22 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
   useEffect(() => {
     if (uploading) {
       showLoader(`Uploading Media... ${progress}%`);
-    } else {
-      hideLoader();
     }
-  }, [progress, uploading, showLoader, hideLoader]);
+  }, [progress, uploading, showLoader]);
 
-  const uploadFiles = async (files: File[]) => {
-    if (files.length === 0) return;
+  const uploadFiles = async (items: ProcessedMediaItem[]) => {
+    if (items.length === 0) return;
 
     setUploading(true);
     setProgress(0);
     setError('');
+    showLoader('Uploading Media... 0%');
 
     const newUploads = [...uploads];
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         
         const data: any = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
@@ -61,7 +70,7 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
           xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
               const filePercent = (event.loaded / event.total) * 100;
-              const overallPercent = ((i * 100) + filePercent) / files.length;
+              const overallPercent = ((i * 100) + filePercent) / items.length;
               setProgress(Math.round(overallPercent));
             }
           };
@@ -74,14 +83,17 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
                 reject(new Error('Invalid server response'));
               }
             } else {
-              reject(new Error('Failed to upload file ' + file.name));
+              reject(new Error('Failed to upload file ' + item.file.name));
             }
           };
 
           xhr.onerror = () => reject(new Error('Network error while uploading'));
           
           const formData = new FormData();
-          formData.append('file', file);
+          formData.append('file', item.file);
+          if (item.cropData) {
+            formData.append('cropParams', JSON.stringify(item.cropData));
+          }
           xhr.send(formData);
         });
         
@@ -89,7 +101,7 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
           publicId: data.public_id,
           publicUrl: data.secure_url,
           mediaType: data.resource_type === 'video' ? 'VIDEO' : 'IMAGE',
-          mimeType: data.format || file.type,
+          mimeType: data.format || item.file.type,
         });
       }
 
@@ -101,6 +113,7 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
     } finally {
       setUploading(false);
       setProgress(0);
+      hideLoader();
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -111,38 +124,36 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
     if (!e.target.files || e.target.files.length === 0) return;
     
     const files = Array.from(e.target.files);
-    const videos = files.filter(f => f.type.startsWith('video/'));
-    const images = files.filter(f => f.type.startsWith('image/'));
+    const mediaToCrop: MediaQueueItem[] = files.map(f => ({
+      file: f,
+      url: URL.createObjectURL(f),
+      type: f.type.startsWith('video/') ? 'VIDEO' : 'IMAGE'
+    }));
 
-    if (images.length === 0) {
-      uploadFiles(videos);
-    } else {
-      setPendingUploadSession({
-        videos,
-        imagesToCrop: images.map(f => ({ file: f, url: URL.createObjectURL(f) })),
-        croppedImages: []
-      });
-    }
+    setPendingUploadSession({
+      mediaToCrop,
+      processedMedia: []
+    });
   };
 
-  const handleCropComplete = (croppedFile: File) => {
+  const handleCropComplete = (croppedFile: File, cropData?: any) => {
     if (!pendingUploadSession) return;
 
-    const newImagesToCrop = [...pendingUploadSession.imagesToCrop];
-    const finishedItem = newImagesToCrop.shift(); // remove first
+    const newMediaToCrop = [...pendingUploadSession.mediaToCrop];
+    const finishedItem = newMediaToCrop.shift(); // remove first
     if (finishedItem) {
-        URL.revokeObjectURL(finishedItem.url); // cleanup
+      URL.revokeObjectURL(finishedItem.url); // cleanup
     }
     
     const newSession = {
       ...pendingUploadSession,
-      imagesToCrop: newImagesToCrop,
-      croppedImages: [...pendingUploadSession.croppedImages, croppedFile]
+      mediaToCrop: newMediaToCrop,
+      processedMedia: [...pendingUploadSession.processedMedia, { file: croppedFile, cropData }]
     };
 
-    if (newImagesToCrop.length === 0) {
+    if (newMediaToCrop.length === 0) {
       setPendingUploadSession(null);
-      uploadFiles([...newSession.videos, ...newSession.croppedImages]);
+      uploadFiles(newSession.processedMedia);
     } else {
       setPendingUploadSession(newSession);
     }
@@ -151,25 +162,49 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
   const handleCropCancel = () => {
     if (!pendingUploadSession) return;
 
-    const newImagesToCrop = [...pendingUploadSession.imagesToCrop];
-    const finishedItem = newImagesToCrop.shift(); // remove first
+    const newMediaToCrop = [...pendingUploadSession.mediaToCrop];
+    const finishedItem = newMediaToCrop.shift(); // remove first
     if (finishedItem) {
-        URL.revokeObjectURL(finishedItem.url); // cleanup
+      URL.revokeObjectURL(finishedItem.url); // cleanup
     }
     
     const newSession = {
       ...pendingUploadSession,
-      imagesToCrop: newImagesToCrop
+      mediaToCrop: newMediaToCrop
     };
 
-    if (newImagesToCrop.length === 0) {
+    if (newMediaToCrop.length === 0) {
       setPendingUploadSession(null);
-      const toUpload = [...newSession.videos, ...newSession.croppedImages];
-      if (toUpload.length > 0) {
-        uploadFiles(toUpload);
+      if (newSession.processedMedia.length > 0) {
+        uploadFiles(newSession.processedMedia);
       } else if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    } else {
+      setPendingUploadSession(newSession);
+    }
+  };
+
+  const handleSkipCrop = () => {
+    if (!pendingUploadSession) return;
+
+    const newMediaToCrop = [...pendingUploadSession.mediaToCrop];
+    const finishedItem = newMediaToCrop.shift(); // remove first
+    if (finishedItem) {
+      URL.revokeObjectURL(finishedItem.url); // cleanup
+    }
+
+    const newSession = {
+      ...pendingUploadSession,
+      mediaToCrop: newMediaToCrop,
+      processedMedia: finishedItem 
+        ? [...pendingUploadSession.processedMedia, { file: finishedItem.file }] 
+        : pendingUploadSession.processedMedia
+    };
+
+    if (newMediaToCrop.length === 0) {
+      setPendingUploadSession(null);
+      uploadFiles(newSession.processedMedia);
     } else {
       setPendingUploadSession(newSession);
     }
@@ -181,14 +216,30 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
     onMediaUploaded(updated);
   };
 
+  const totalMediaCount = pendingUploadSession 
+    ? pendingUploadSession.processedMedia.length + pendingUploadSession.mediaToCrop.length 
+    : 0;
+  const currentMediaIndex = pendingUploadSession 
+    ? pendingUploadSession.processedMedia.length + 1 
+    : 0;
+
+  const currentMediaItem = pendingUploadSession && pendingUploadSession.mediaToCrop.length > 0
+    ? pendingUploadSession.mediaToCrop[0]
+    : null;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       
-      {pendingUploadSession && pendingUploadSession.imagesToCrop.length > 0 && (
+      {currentMediaItem && (
         <ImageCropper
-          imageSrc={pendingUploadSession.imagesToCrop[0].url}
+          mediaSrc={currentMediaItem.url}
+          mediaType={currentMediaItem.type}
+          originalFile={currentMediaItem.file}
+          currentIndex={currentMediaIndex}
+          totalCount={totalMediaCount}
           onCropComplete={handleCropComplete}
           onCancel={handleCropCancel}
+          onSkip={handleSkipCrop}
         />
       )}
 
@@ -263,9 +314,30 @@ export default function MediaUploader({ initialMedia = [], onMediaUploaded }: Me
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                 />
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                  <ImageIcon size={24} color="#64748b" />
-                  <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: '#64748b' }}>Video</span>
+                <div style={{ position: 'relative', width: '100%', height: '100%', background: '#0f172a' }}>
+                  <video 
+                    src={media.publicUrl} 
+                    muted 
+                    loop 
+                    playsInline 
+                    autoPlay 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                  <div 
+                    style={{ 
+                      position: 'absolute', 
+                      bottom: '4px', 
+                      left: '4px', 
+                      background: 'rgba(168, 85, 247, 0.85)', 
+                      color: '#fff', 
+                      fontSize: '0.65rem', 
+                      fontWeight: 700, 
+                      padding: '1px 6px', 
+                      borderRadius: '4px' 
+                    }}
+                  >
+                    VIDEO
+                  </div>
                 </div>
               )}
               

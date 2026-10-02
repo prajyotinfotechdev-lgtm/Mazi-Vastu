@@ -55,7 +55,7 @@ export class LeadService {
         status: 'NEW',
         propertyId: input.propertyId,
         serviceId: input.serviceId,
-        metadata: input.metadata || {},
+        metadata: (input.metadata || {}) as any,
         visitorId: input.visitorId,
       },
     });

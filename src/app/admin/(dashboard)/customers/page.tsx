@@ -157,7 +157,7 @@ export default async function AdminCustomersPage({
                         background: 'var(--mv-bg)', 
                         color: 'var(--mv-text-secondary)'
                       }}>
-                        {customer.source.replace('_', ' ')}
+                        {customer.source ? customer.source.replace('_', ' ') : 'DIRECT'}
                       </span>
                     </td>
                     <td style={{ padding: '1rem', color: 'var(--mv-text-secondary)', fontSize: '0.875rem' }}>

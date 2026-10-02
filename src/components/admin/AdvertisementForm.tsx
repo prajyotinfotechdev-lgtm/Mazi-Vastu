@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Info, User, Image as ImageIcon, ArrowLeft } from 'lucide-react';
+import { Save, Info, User, Image as ImageIcon, ArrowLeft, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MediaUploader, { UploadedMedia } from './MediaUploader';
+import { LATUR_CITIES } from '@/lib/seo/latur-cities';
 
 interface AdvertisementFormProps {
   initialData?: any;
@@ -30,12 +31,17 @@ export default function AdvertisementForm({ initialData }: AdvertisementFormProp
     endDate: initialData?.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : '',
   });
 
+  // Selected City for specific city section placement
+  const [selectedCity, setSelectedCity] = useState<string>(
+    initialData?.placements?.find((p: any) => p.pageContext)?.pageContext || ''
+  );
+
   // Media State
   const [media, setMedia] = useState<UploadedMedia[]>(initialData?.media || []);
   
   // Placements State
   const [placements, setPlacements] = useState<string[]>(
-    initialData?.placements?.map((p: any) => p.placementZone) || []
+    initialData?.placements?.map((p: any) => p.placementZone) || ['HOMEPAGE_BANNER']
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -73,19 +79,22 @@ export default function AdvertisementForm({ initialData }: AdvertisementFormProp
       const savedAd = await res.json();
       const adId = isEdit ? initialData.id : savedAd.id;
 
-      // Assign placements
-      if (placements.length > 0) {
-        const placementsPayload = {
-          placements: placements.map(p => ({ placementZone: p, sortOrder: 0 }))
-        };
-        const placementRes = await fetch(`/api/admin/advertisements/${adId}/placements`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(placementsPayload),
-        });
-        if (!placementRes.ok) {
-           console.error("Failed to assign placements");
-        }
+      // Assign placements with city pageContext
+      const activePlacements = placements.length > 0 ? placements : ['HOMEPAGE_BANNER'];
+      const placementsPayload = {
+        placements: activePlacements.map(p => ({
+          placementZone: p,
+          pageContext: selectedCity || null,
+          sortOrder: 0
+        }))
+      };
+      const placementRes = await fetch(`/api/admin/advertisements/${adId}/placements`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(placementsPayload),
+      });
+      if (!placementRes.ok) {
+        console.error("Failed to assign placements");
       }
 
       toast.success(`Advertisement ${isEdit ? 'updated' : 'created'} successfully!`);
@@ -190,10 +199,36 @@ export default function AdvertisementForm({ initialData }: AdvertisementFormProp
                 <option value="INACTIVE">Inactive (Paused)</option>
               </select>
             </div>
+
+            <div>
+              <label style={getLabelStyle()}>
+                Target City (शहराची निवड करा)
+              </label>
+              <select
+                name="city"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                onFocus={() => setFocusedField('city')}
+                onBlur={() => setFocusedField(null)}
+                style={getInputStyle('city')}
+              >
+                <option value="">All Cities / District-wide (संपूर्ण लातूर जिल्हा)</option>
+                {LATUR_CITIES.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name} ({c.marathiName})
+                  </option>
+                ))}
+              </select>
+              <span style={{ fontSize: '0.75rem', color: selectedCity ? 'var(--mv-accent)' : 'var(--mv-text-muted)', marginTop: '4px', display: 'block' }}>
+                {selectedCity 
+                  ? `✓ ही जाहिरात मुख्यपृष्ठावरील 'तुमच्या शहरातील मालमत्ता शोधा' आणि ${LATUR_CITIES.find(c => c.slug === selectedCity)?.marathiName || selectedCity} पेजवर दिसेल.` 
+                  : 'लातूर जिल्ह्यातील सर्व शहरांसाठी सामान्य जाहिरात'}
+              </span>
+            </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', gridColumn: '1 / -1' }}>
               <label style={getLabelStyle()}>Placement Zones</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
                 {['HOMEPAGE_BANNER', 'CATEGORY_PAGE_SLOT', 'SERVICE_PAGE_SLOT', 'FOOTER_STRIP'].map(zone => (
                   <label key={zone} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--mv-text)', cursor: 'pointer' }}>
                     <input 

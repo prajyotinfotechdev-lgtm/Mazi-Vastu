@@ -65,7 +65,7 @@ export const advertisementFilterSchema = z.object({
 
 export const publicAdvertisementFilterSchema = z.object({
   placement: z
-    .enum(['HOMEPAGE_BANNER', 'CATEGORY_PAGE_SLOT', 'SIDEBAR', 'FOOTER_STRIP'])
+    .enum(['HOMEPAGE_BANNER', 'CATEGORY_PAGE_SLOT', 'SERVICE_PAGE_SLOT', 'FOOTER_STRIP'])
     .optional(),
   pageContext: z.string().max(200).optional(),
   categoryContext: z.string().max(200).optional(),

@@ -19,6 +19,7 @@ const nextConfig = {
 
   // Gzip / Brotli compression
   compress: true,
+  poweredByHeader: false,
 
   // Security headers
   async headers() {

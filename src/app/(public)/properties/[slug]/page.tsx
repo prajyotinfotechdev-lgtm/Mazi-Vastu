@@ -96,7 +96,7 @@ export default async function PropertyDetailPage({ params }: { params: { slug: s
                       animation: 'mvShimmer 2s infinite linear'
                     }} />
                   ) : (
-                    property.priceType === 'ON_REQUEST' ? t('property.onRequest', lang) : `₹${property.price.toLocaleString('en-IN')}`
+                    (property.priceType === 'ON_REQUEST' || property.price === null) ? t('property.onRequest', lang) : `₹${property.price.toLocaleString('en-IN')}`
                   )}
                 </div>
               </div>
